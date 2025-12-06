@@ -1,15 +1,19 @@
 import { ContextMenuContext, MenuItem } from "../types";
 import styles from "./ContextMenu.module.scss";
 
+export type ContextMenuTheme = "light" | "dark" | "auto";
+
 export interface ContextMenuOptions {
   className?: string;
-  theme?: "light" | "dark" | "auto";
+  theme?: ContextMenuTheme;
+  width?: string | number;
 }
 
 export default class ContextMenu {
   private _items: MenuItem[] = [];
   private _className: string;
-  private _theme: "light" | "dark" | "auto";
+  private _theme: ContextMenuTheme;
+  private _width: string | number | undefined;
   private _menuEl: HTMLMenuElement | null = null;
   private _container: HTMLElement | null = null;
   private _menuClickHandler: ((ev: MouseEvent) => void) | null = null;
@@ -17,6 +21,16 @@ export default class ContextMenu {
   constructor(options?: ContextMenuOptions) {
     this._className = options?.className ?? styles.menu;
     this._theme = options?.theme ?? "auto";
+    this._width = options?.width;
+  }
+
+  get width(): string | number | undefined {
+    return this._width;
+  }
+
+  set width(value: string | number | undefined) {
+    this._width = value;
+    this._updateWidth();
   }
 
   addItem(item: MenuItem): this {
@@ -103,6 +117,18 @@ export default class ContextMenu {
     this._container.appendChild(menu);
 
     this._menuEl = menu;
+    this._updateWidth();
+  }
+
+  private _updateWidth(): void {
+    if (!this._menuEl) return;
+
+    if (this._width !== undefined) {
+      this._menuEl.style.width =
+        typeof this._width === "number" ? `${this._width}px` : this._width;
+    } else {
+      this._menuEl.style.width = "";
+    }
   }
 
   private _removeItems(): void {

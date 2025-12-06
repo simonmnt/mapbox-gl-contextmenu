@@ -15,7 +15,7 @@ const map = new mapboxgl.Map({
 });
 
 map.on("load", () => {
-  const contextMenu = new MapboxContextMenu();
+  const contextMenu = new MapboxContextMenu({ width: 180 });
 
   const showCoordinatesItem = new ContextMenuItem({
     label: "Show coordinates",
