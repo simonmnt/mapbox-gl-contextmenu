@@ -118,6 +118,7 @@ export default class ContextMenu {
     this._container.appendChild(menu);
 
     this._menuEl = menu;
+
     this._updateWidth();
   }
 

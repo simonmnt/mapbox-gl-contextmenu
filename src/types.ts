@@ -7,4 +7,12 @@ export interface ContextMenuContext {
   event: MapMouseEvent;
 }
 
+export interface ContextMenuItemEventData {
+  originalEvent: MouseEvent;
+  point: { x: number; y: number };
+  lngLat: { lng: number; lat: number };
+  features?: Array<GeoJSON.Feature>;
+  map: Map;
+}
+
 export type MenuItem = ContextMenuItem | ContextMenuSeparator;

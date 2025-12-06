@@ -1,15 +1,7 @@
-import type { ContextMenuContext } from "../types";
+import type { ContextMenuContext, ContextMenuItemEventData } from "../types";
 import { Evented } from "../util/evented";
 import { createElement } from "../util/dom";
 import styles from "./ContextMenuItem.module.scss";
-
-export interface ContextMenuItemEventData {
-  originalEvent: MouseEvent;
-  point: { x: number; y: number };
-  lngLat: { lng: number; lat: number };
-  features?: Array<GeoJSON.Feature>;
-  map: import("mapbox-gl").Map;
-}
 
 interface ContextMenuItemEventRegistry
   extends Record<string, ContextMenuItemEventData | void> {
@@ -177,9 +169,7 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistr
       this._clickHandler = null;
     }
 
-    if (this._liEl?.parentElement) {
-      this._liEl.remove();
-    }
+    this._liEl?.remove();
 
     this._liEl = null;
     this._buttonEl = null;
