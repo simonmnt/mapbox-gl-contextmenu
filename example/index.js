@@ -16,22 +16,26 @@ map.on("load", () => {
   const showCoordinatesItem = new ContextMenuItem({
     label: "Show coordinates"
   });
-  showCoordinatesItem.addEventListener("click", (e) => {
-    const lng = e.lngLat.lng.toFixed(6);
-    const lat = e.lngLat.lat.toFixed(6);
+
+  showCoordinatesItem.addEventListener("click", ({ lngLat }) => {
+    const lng = lngLat.lng.toFixed(6);
+    const lat = lngLat.lat.toFixed(6);
     alert(`Coordinates: ${lng}, ${lat}`);
   });
+
   contextMenu.addItem(showCoordinatesItem);
 
   const centerMapItem = new ContextMenuItem({
     label: "Center map here"
   });
-  centerMapItem.addEventListener("click", (e) => {
-    e.map.flyTo({
-      center: [e.lngLat.lng, e.lngLat.lat],
-      zoom: e.map.getZoom()
+
+  centerMapItem.addEventListener("click", ({ map, lngLat }) => {
+    map.flyTo({
+      center: [lngLat.lng, lngLat.lat],
+      zoom: map.getZoom()
     });
   });
+
   contextMenu.addItem(centerMapItem);
 
   contextMenu.addTo(map);

@@ -1,4 +1,4 @@
-import type { Map, MapMouseEvent } from "mapbox-gl";
+import type { Map } from "mapbox-gl";
 import type { ContextMenuContext } from "../types";
 
 export class ContextMenuItemEvent extends Event {
@@ -8,13 +8,19 @@ export class ContextMenuItemEvent extends Event {
   readonly features?: Array<GeoJSON.Feature>;
   readonly map: Map;
 
-  constructor(type: string, originalEvent: MouseEvent, context: ContextMenuContext) {
+  constructor(
+    type: string,
+    originalEvent: MouseEvent,
+    context: ContextMenuContext
+  ) {
     super(type, { bubbles: true, cancelable: true });
+
+    const { event, map } = context;
     this.originalEvent = originalEvent;
-    this.point = context.event.point;
-    this.lngLat = context.event.lngLat;
-    this.features = context.event.features;
-    this.map = context.map;
+    this.point = event.point;
+    this.lngLat = event.lngLat;
+    this.features = event.features;
+    this.map = map;
   }
 
   preventDefault(): void {
@@ -24,4 +30,3 @@ export class ContextMenuItemEvent extends Event {
     }
   }
 }
-

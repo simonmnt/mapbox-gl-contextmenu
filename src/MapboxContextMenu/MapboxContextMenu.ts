@@ -143,6 +143,41 @@ export default class MapboxContextMenu {
     }
   }
 
+  private _positionInViewport(
+    x: number,
+    y: number
+  ): { left: number; top: number } {
+    if (!this._menuEl || !this._map) {
+      return { left: x, top: y };
+    }
+
+    const container = this._map.getContainer();
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+
+    // Ensure menu has been made visible so offsetWidth/Height are accurate
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this._menuEl.offsetWidth;
+
+    const menuWidth = this._menuEl.offsetWidth;
+    const menuHeight = this._menuEl.offsetHeight;
+
+    let left = x;
+    let top = y;
+
+    if (left + menuWidth > containerWidth) {
+      left = containerWidth - menuWidth;
+    }
+    if (top + menuHeight > containerHeight) {
+      top = containerHeight - menuHeight;
+    }
+
+    if (left < 0) left = 0;
+    if (top < 0) top = 0;
+
+    return { left, top };
+  }
+
   private _show(event: MapMouseEvent): void {
     if (!this._menuEl) return;
 
@@ -155,8 +190,13 @@ export default class MapboxContextMenu {
       item.render(this._menuEl!, ctx);
     });
 
-    this._menuEl.style.left = `${event.point.x}px`;
-    this._menuEl.style.top = `${event.point.y}px`;
+    const { left, top } = this._positionInViewport(
+      event.point.x,
+      event.point.y
+    );
+
+    this._menuEl.style.left = `${left}px`;
+    this._menuEl.style.top = `${top}px`;
 
     this._menuEl.classList.add(styles.visible);
   }

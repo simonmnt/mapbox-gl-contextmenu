@@ -7,6 +7,7 @@
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
+  z-index: 10;
   transition: opacity 120ms ease-out;
 }
 
