@@ -21,8 +21,6 @@ export interface ContextMenuItemOptions {
 let nextId = 0;
 
 export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistry> {
-  private static readonly BASE_ICON_CLASS = "context-menu-icon";
-
   public readonly id: string;
   private _className: string;
   private _buttonClassName: string;
@@ -113,7 +111,9 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistr
       ...(this._disabled && { disabled: "disabled" })
     }) as HTMLButtonElement;
 
-    const iconEl = createElement("span", {});
+    const iconEl = createElement("span", {
+      className: styles.icon
+    });
     this._iconEl = iconEl;
     this._updateIcon();
 
@@ -158,8 +158,8 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistr
     if (!this._iconEl) return;
 
     this._iconEl.className = this._icon
-      ? `${ContextMenuItem.BASE_ICON_CLASS} ${this._icon}`
-      : ContextMenuItem.BASE_ICON_CLASS;
+      ? `${styles.icon} ${this._icon}`
+      : styles.icon;
     this._iconEl.style.display = this._icon ? "" : "none";
   }
 
