@@ -1,4 +1,5 @@
 import { ContextMenuContext, MenuItem } from "../types";
+import { createElement } from "../util/dom";
 import styles from "./ContextMenu.module.scss";
 
 export type ContextMenuTheme = "light" | "dark" | "auto";
@@ -14,7 +15,7 @@ export default class ContextMenu {
   private _className: string;
   private _theme: ContextMenuTheme;
   private _width: string | number | undefined;
-  private _menuEl: HTMLMenuElement | null = null;
+  private _menuEl: HTMLElement | null = null;
   private _container: HTMLElement | null = null;
   private _menuClickHandler: ((ev: MouseEvent) => void) | null = null;
 
@@ -75,7 +76,7 @@ export default class ContextMenu {
 
   addTo(container: HTMLElement): this {
     this._container = container;
-    this._createElements();
+    this._setupUI();
     return this;
   }
 
@@ -94,20 +95,20 @@ export default class ContextMenu {
     return this;
   }
 
-  private _createElements(): void {
+  private _setupUI(): void {
     if (!this._container) return;
 
-    const menu = document.createElement("menu");
-    menu.className = this._className;
+    const menu = createElement("menu", {
+      role: "menu",
+      class: this._className
+    });
+    menu.style.position = "absolute";
 
     if (this._theme === "light") {
       menu.classList.add("themeLight");
     } else if (this._theme === "dark") {
       menu.classList.add("themeDark");
     }
-
-    menu.setAttribute("role", "menu");
-    menu.style.position = "absolute";
 
     this._menuClickHandler = () => {
       this.hide();

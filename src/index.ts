@@ -2,8 +2,10 @@ export { default as MapboxContextMenu } from "./MapboxContextMenu/MapboxContextM
 export type { MapboxContextMenuOptions } from "./MapboxContextMenu/MapboxContextMenu";
 
 export { default as ContextMenuItem } from "./ContextMenuItem/ContextMenuItem";
-export type { ContextMenuItemOptions } from "./ContextMenuItem/ContextMenuItem";
-export { ContextMenuItemEvent } from "./ContextMenuItem/ContextMenuItemEvent";
+export type {
+  ContextMenuItemOptions,
+  ContextMenuItemEventData
+} from "./ContextMenuItem/ContextMenuItem";
 
 export { default as ContextMenuSeparator } from "./ContextMenuSeparator";
 export type { ContextMenuSeparatorOptions } from "./ContextMenuSeparator";

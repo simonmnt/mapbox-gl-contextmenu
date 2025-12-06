@@ -1,6 +1,20 @@
 import type { ContextMenuContext } from "../types";
-import { ContextMenuItemEvent } from "./ContextMenuItemEvent";
+import { Evented } from "../util/evented";
+import { createElement } from "../util/dom";
 import styles from "./ContextMenuItem.module.scss";
+
+export interface ContextMenuItemEventData {
+  originalEvent: MouseEvent;
+  point: { x: number; y: number };
+  lngLat: { lng: number; lat: number };
+  features?: Array<GeoJSON.Feature>;
+  map: import("mapbox-gl").Map;
+}
+
+interface ContextMenuItemEventRegistry
+  extends Record<string, ContextMenuItemEventData | void> {
+  click: ContextMenuItemEventData;
+}
 
 export interface ContextMenuItemOptions {
   id?: string;
@@ -14,7 +28,7 @@ export interface ContextMenuItemOptions {
 
 let nextId = 0;
 
-export default class ContextMenuItem extends EventTarget {
+export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistry> {
   private static readonly BASE_ICON_CLASS = "context-menu-icon";
 
   public readonly id: string;
@@ -25,10 +39,10 @@ export default class ContextMenuItem extends EventTarget {
   private _iconPosition: "before" | "after";
   private _disabled: boolean;
 
-  private _liEl: HTMLLIElement | null = null;
-  private _buttonEl: HTMLButtonElement | null = null;
-  private _iconEl: HTMLSpanElement | null = null;
-  private _labelEl: HTMLSpanElement | null = null;
+  private _liEl: HTMLElement | null = null;
+  private _buttonEl: HTMLElement | null = null;
+  private _iconEl: HTMLElement | null = null;
+  private _labelEl: HTMLElement | null = null;
 
   private _currentCtx: ContextMenuContext | null = null;
 
@@ -74,7 +88,7 @@ export default class ContextMenuItem extends EventTarget {
     this._disabled = value;
 
     if (this._buttonEl) {
-      this._buttonEl.disabled = value;
+      (this._buttonEl as HTMLButtonElement).disabled = value;
       this._buttonEl.setAttribute("aria-disabled", String(value));
     }
   }
@@ -83,7 +97,7 @@ export default class ContextMenuItem extends EventTarget {
     this._currentCtx = ctx;
 
     if (!this._liEl || !this._buttonEl) {
-      this._createElements();
+      this._setupUI();
     }
 
     const liEl = this._liEl!;
@@ -94,32 +108,40 @@ export default class ContextMenuItem extends EventTarget {
     return liEl;
   }
 
-  private _createElements(): void {
-    const li = document.createElement("li");
-    li.className = this._className;
-    li.setAttribute("role", "presentation");
+  private _setupUI(): void {
+    const li = createElement("li", {
+      role: "presentation",
+      className: this._className
+    });
 
-    const button = document.createElement("button");
-    button.className = this._buttonClassName;
-    button.setAttribute("role", "menuitem");
-    button.disabled = this._disabled;
-    button.setAttribute("aria-disabled", String(this._disabled));
+    const button = createElement("button", {
+      role: "menuitem",
+      "aria-disabled": String(this._disabled),
+      className: this._buttonClassName,
+      ...(this._disabled && { disabled: "disabled" })
+    }) as HTMLButtonElement;
 
-    const iconEl = document.createElement("span");
+    const iconEl = createElement("span", {});
     this._iconEl = iconEl;
     this._updateIcon();
 
-    const labelEl = document.createElement("span");
-    labelEl.className = "context-menu-label";
+    const labelEl = createElement("span", {
+      className: "context-menu-label"
+    });
     labelEl.textContent = this._label;
 
     this._clickHandler = (ev: MouseEvent) => {
       ev.preventDefault();
 
       if (!this._disabled && this._currentCtx) {
-        this.dispatchEvent(
-          new ContextMenuItemEvent("click", ev, this._currentCtx)
-        );
+        const { event, map } = this._currentCtx;
+        this.fire("click", {
+          originalEvent: ev,
+          point: event.point,
+          lngLat: event.lngLat,
+          features: event.features,
+          map
+        });
       }
     };
 

@@ -22,7 +22,7 @@ map.on("load", () => {
     icon: "fa-solid fa-location-dot"
   });
 
-  showCoordinatesItem.addEventListener("click", ({ lngLat }) => {
+  showCoordinatesItem.on("click", ({ lngLat }) => {
     const lng = lngLat.lng.toFixed(6);
     const lat = lngLat.lat.toFixed(6);
     alert(`Coordinates: ${lng}, ${lat}`);
@@ -38,7 +38,7 @@ map.on("load", () => {
     icon: "fa-solid fa-crosshairs"
   });
 
-  centerMapItem.addEventListener("click", ({ map, lngLat }) => {
+  centerMapItem.on("click", ({ map, lngLat }) => {
     map.easeTo({
       center: [lngLat.lng, lngLat.lat]
     });
