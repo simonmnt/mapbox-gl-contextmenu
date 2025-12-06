@@ -128,6 +128,7 @@ export default class ContextMenu {
     }
   }
 
+  // --- ContextMenu.ts (Modified _handleKeydown method) ---
   private _handleKeydown(ev: KeyboardEvent): void {
     if (!this._menuEl || !this._menuEl.classList.contains(styles.visible)) {
       return;
@@ -137,25 +138,49 @@ export default class ContextMenu {
     if (len === 0) return;
 
     let newIndex = this._focusedIndex;
+    let originalIndex = this._focusedIndex;
 
     switch (ev.key) {
       case "ArrowDown":
-        if (this._focusedIndex === -1) {
-          newIndex = 0;
-        } else if (this._focusedIndex < len - 1) {
-          newIndex = this._focusedIndex + 1;
-        }
         ev.preventDefault();
+
+        newIndex = this._focusedIndex === -1 ? 0 : this._focusedIndex + 1;
+
+        while (newIndex < len) {
+          if (this._isFocusable(this._items[newIndex])) {
+            break;
+          }
+          newIndex++;
+        }
+
+        if (newIndex >= len) {
+          newIndex = originalIndex;
+        }
         break;
+
       case "ArrowUp":
-        if (this._focusedIndex > 0) {
-          newIndex = this._focusedIndex - 1;
-        }
         ev.preventDefault();
+
+        newIndex = this._focusedIndex - 1;
+
+        while (newIndex >= 0) {
+          if (this._isFocusable(this._items[newIndex])) {
+            break;
+          }
+          newIndex--;
+        }
+
+        if (newIndex < 0) {
+          newIndex = originalIndex;
+        }
         break;
+
       case "Enter":
       case " ":
-        if (this._focusedIndex !== -1) {
+        if (
+          this._focusedIndex !== -1 &&
+          this._isFocusable(this._items[this._focusedIndex])
+        ) {
           (this._items[this._focusedIndex] as any).click();
           this.hide();
         }
@@ -169,9 +194,14 @@ export default class ContextMenu {
         return;
     }
 
-    if (newIndex !== this._focusedIndex) {
+    if (newIndex !== this._focusedIndex && newIndex !== originalIndex) {
       this._focusItem(newIndex);
     }
+  }
+
+  private _isFocusable(item: MenuItem): boolean {
+    const itemAny = item as any;
+    return item && !itemAny.disabled && typeof itemAny.focus === "function";
   }
 
   private _setupUI(): void {

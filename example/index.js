@@ -31,9 +31,6 @@ map.on("load", () => {
 
   contextMenu.addItem(showCoordinatesItem);
 
-  const separator = new ContextMenuSeparator();
-  // contextMenu.addItem(separator);
-
   const centerMapItem = new ContextMenuItem({
     label: "Center map here",
     icon: "fa-solid fa-crosshairs"
@@ -46,6 +43,16 @@ map.on("load", () => {
   });
 
   contextMenu.addItem(centerMapItem);
+
+  const separator = new ContextMenuSeparator();
+  contextMenu.addItem(separator);
+
+  const directionsItem = new ContextMenuItem({
+    label: "Get directions",
+    icon: "fa-solid fa-route"
+  });
+
+  contextMenu.addItem(directionsItem);
 
   contextMenu.addTo(map);
 });
