@@ -18,20 +18,21 @@ map.on("load", () => {
   const contextMenu = new MapboxContextMenu({ width: 180 });
 
   const showCoordinatesItem = new ContextMenuItem({
-    label: "Show coordinates",
+    label: "Copy coordinates",
     icon: "fa-solid fa-location-dot"
   });
 
-  showCoordinatesItem.on("click", ({ lngLat }) => {
+  showCoordinatesItem.on("click", async ({ lngLat }) => {
     const lng = lngLat.lng.toFixed(6);
     const lat = lngLat.lat.toFixed(6);
-    alert(`Coordinates: ${lng}, ${lat}`);
+    const coordinates = `${lng}, ${lat}`;
+    await navigator.clipboard.writeText(coordinates);
   });
 
   contextMenu.addItem(showCoordinatesItem);
 
   const separator = new ContextMenuSeparator();
-  contextMenu.addItem(separator);
+  // contextMenu.addItem(separator);
 
   const centerMapItem = new ContextMenuItem({
     label: "Center map here",

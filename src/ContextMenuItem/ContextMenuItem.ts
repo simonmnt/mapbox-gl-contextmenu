@@ -101,24 +101,24 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEventRegistr
   private _setupUI(): void {
     const li = createElement("li", {
       role: "presentation",
-      className: this._className
+      class: this._className
     });
 
     const button = createElement("button", {
       role: "menuitem",
       "aria-disabled": String(this._disabled),
-      className: this._buttonClassName,
+      class: this._buttonClassName,
       ...(this._disabled && { disabled: "disabled" })
     }) as HTMLButtonElement;
 
     const iconEl = createElement("span", {
-      className: styles.icon
+      class: styles.icon
     });
     this._iconEl = iconEl;
     this._updateIcon();
 
     const labelEl = createElement("span", {
-      className: "context-menu-label"
+      class: "context-menu-label"
     });
     labelEl.textContent = this._label;
 

@@ -8,8 +8,7 @@ export function createElement(
   const el = document.createElement(tagName);
 
   for (const name of Object.keys(attributes)) {
-    const attrName = name === "className" ? "class" : name;
-    el.setAttribute(attrName, String(attributes[name]));
+    el.setAttribute(name, String(attributes[name]));
   }
 
   if (container) container.appendChild(el);

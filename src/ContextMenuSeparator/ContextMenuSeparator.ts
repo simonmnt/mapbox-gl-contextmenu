@@ -34,7 +34,7 @@ export default class ContextMenuSeparator {
 
   private _setupUI(): void {
     const li = createElement("li", {
-      className: this._className,
+      class: this._className,
       role: "separator",
       "aria-orientation": "horizontal"
     });
