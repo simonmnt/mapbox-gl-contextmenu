@@ -1,12 +1,14 @@
 .menuItem {
+  box-sizing: border-box;
   list-style: none;
 }
 
 .button {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: calc(100% - 8px);
   padding: 6px 10px;
+  margin: 4px;
   border: none;
   border-radius: 2px;
   background: none;
