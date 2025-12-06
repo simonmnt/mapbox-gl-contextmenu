@@ -5,6 +5,8 @@ import { ContextMenu, ContextMenuOptions } from "../ContextMenu";
 export interface MapboxContextMenuOptions extends ContextMenuOptions {}
 
 export default class MapboxContextMenu extends ContextMenu {
+  private static _openMenu: MapboxContextMenu | null = null;
+
   private _map: MapboxMap | null = null;
   private _target: string | undefined = undefined;
   private _handlers = {
@@ -35,9 +37,29 @@ export default class MapboxContextMenu extends ContextMenu {
     this._removeEventListeners();
     super.remove();
 
+    if (MapboxContextMenu._openMenu === this) {
+      MapboxContextMenu._openMenu = null;
+    }
+
     this._map = null;
     this._target = undefined;
     return this;
+  }
+
+  protected show(x: number, y: number, context: ContextMenuContext): void {
+    if (MapboxContextMenu._openMenu && MapboxContextMenu._openMenu !== this) {
+      MapboxContextMenu._openMenu.hide();
+    }
+
+    super.show(x, y, context);
+    MapboxContextMenu._openMenu = this;
+  }
+
+  protected hide(): void {
+    super.hide();
+    if (MapboxContextMenu._openMenu === this) {
+      MapboxContextMenu._openMenu = null;
+    }
   }
 
   private _addEventListeners(): void {
