@@ -4,11 +4,24 @@ import { ContextMenu, ContextMenuOptions } from "../ContextMenu";
 
 export interface MapboxContextMenuOptions extends ContextMenuOptions {}
 
+/**
+ * A context menu for Mapbox GL JS and Maplibre GL JS.
+ *
+ * @example
+ * ```ts
+ * const menu = new MapboxContextMenu({ theme: "dark" });
+ *
+ * menu.addItem(new ContextMenuItem({ label: "Center here" })
+ *   .on("click", (e) => map.flyTo({ center: e.lngLat })));
+ *
+ * menu.addTo(map);
+ * ```
+ */
 export default class MapboxContextMenu extends ContextMenu {
   private static _openMenu: MapboxContextMenu | null = null;
 
   private _map: MapboxMap | null = null;
-  private _target: string | undefined = undefined;
+  private _layerIds: string | string[] | undefined = undefined;
   private _handlers = {
     contextmenu: null as ((e: MapMouseEvent) => void) | null,
     mousedown: null as ((e: MapMouseEvent) => void) | null,
@@ -19,10 +32,16 @@ export default class MapboxContextMenu extends ContextMenu {
     super(options);
   }
 
+  /**
+   * Adds the context menu to a Mapbox GL map.
+   *
+   * @param map - The map instance.
+   * @param layerIds - Optional layer ID(s) to restrict the menu to. Can be a string or array of strings.
+   */
   // @ts-expect-error - Override with different signature for Mapbox-specific API
-  addTo(map: MapboxMap, target?: string): this {
+  addTo(map: MapboxMap, layerIds?: string | string[]): this {
     this._map = map;
-    this._target = target;
+    this._layerIds = layerIds;
 
     ContextMenu.prototype.addTo.call(this, map.getContainer());
 
@@ -31,6 +50,9 @@ export default class MapboxContextMenu extends ContextMenu {
     return this;
   }
 
+  /**
+   * Removes the context menu from the map and cleans up event listeners.
+   */
   remove(): this {
     if (!this._map) return this;
 
@@ -42,7 +64,7 @@ export default class MapboxContextMenu extends ContextMenu {
     }
 
     this._map = null;
-    this._target = undefined;
+    this._layerIds = undefined;
     return this;
   }
 
@@ -82,8 +104,8 @@ export default class MapboxContextMenu extends ContextMenu {
       this.hide();
     };
 
-    if (this._target) {
-      this._map!.on("contextmenu", this._target, this._handlers.contextmenu);
+    if (this._layerIds) {
+      this._map!.on("contextmenu", this._layerIds, this._handlers.contextmenu);
     } else {
       this._map!.on("contextmenu", this._handlers.contextmenu);
     }
@@ -99,10 +121,10 @@ export default class MapboxContextMenu extends ContextMenu {
       if (!handler) continue;
 
       if (event === "contextmenu") {
-        this._target
+        this._layerIds
           ? this._map.off(
               "contextmenu",
-              this._target,
+              this._layerIds,
               handler as (e: MapMouseEvent) => void
             )
           : this._map.off("contextmenu", handler as (e: MapMouseEvent) => void);

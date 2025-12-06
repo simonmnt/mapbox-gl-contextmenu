@@ -33,19 +33,35 @@ export default class ContextMenu {
     this._width = options?.width;
   }
 
+  /**
+   * Gets the width of the context menu.
+   * @returns The width as a string (e.g., "200px") or number (in pixels), or undefined if not set.
+   */
   get width(): string | number | undefined {
     return this._width;
   }
 
+  /**
+   * Sets the width of the context menu.
+   * @param value - The width as a string (e.g., "200px") or number (in pixels), or undefined to use the default width.
+   */
   set width(value: string | number | undefined) {
     this._width = value;
     this._updateWidth();
   }
 
+  /**
+   * Gets the theme of the context menu.
+   * @returns The current theme setting: "light", "dark", or "auto".
+   */
   get theme(): ContextMenuTheme {
     return this._theme;
   }
 
+  /**
+   * Sets the theme of the context menu.
+   * @param value - The theme to use: "light" for light mode, "dark" for dark mode, or "auto" to follow the system preference.
+   */
   set theme(value: ContextMenuTheme) {
     this._theme = value;
     this._updateTheme();
@@ -55,6 +71,10 @@ export default class ContextMenu {
     return this._menuEl;
   }
 
+  /**
+   * Gets the context menu items.
+   * @returns The context menu items.
+   */
   get items(): readonly MenuItem[] {
     return this._items;
   }
@@ -80,16 +100,32 @@ export default class ContextMenu {
     }
   }
 
+  /**
+   * Adds a menu item to the end of the context menu.
+   * @param item - The menu item to add. Can be a ContextMenuItem, ContextMenuSeparator, or ContextMenuSub.
+   * @returns The context menu instance for method chaining.
+   */
   addItem(item: MenuItem): this {
     this._items.push(item);
     return this;
   }
 
+  /**
+   * Inserts a menu item at the specified index.
+   * @param index - The index at which to insert the item. If the index is out of bounds, the item will be added at the end.
+   * @param item - The menu item to insert. Can be a ContextMenuItem, ContextMenuSeparator, or ContextMenuSub.
+   * @returns The context menu instance for method chaining.
+   */
   insertItem(index: number, item: MenuItem): this {
     this._items.splice(index, 0, item);
     return this;
   }
 
+  /**
+   * Removes a menu item from the context menu, doing any clean up necessary.
+   * @param item - The menu item to remove.
+   * @returns The context menu instance for method chaining.
+   */
   removeItem(item: MenuItem): this {
     const index = this._items.indexOf(item);
     if (index !== -1) {
@@ -99,12 +135,21 @@ export default class ContextMenu {
     return this;
   }
 
+  /**
+   * Adds the context menu to a container element.
+   * @param container - The HTML element to add the menu to. The menu will be positioned absolutely within this container.
+   * @returns The context menu instance for method chaining.
+   */
   addTo(container: HTMLElement): this {
     this._container = container;
     this._setupUI();
     return this;
   }
 
+  /**
+   * Removes the context menu from the DOM and cleans up all event listeners and menu items.
+   * @returns The context menu instance for method chaining.
+   */
   remove(): this {
     this._removeItems();
 
@@ -120,6 +165,12 @@ export default class ContextMenu {
     return this;
   }
 
+  /**
+   * Shows the context menu at the specified coordinates.
+   * @param x - The x coordinate (in pixels) relative to the container.
+   * @param y - The y coordinate (in pixels) relative to the container.
+   * @param context - The context object containing the map, `contextmenu` event, and optional menu configuration.
+   */
   show(x: number, y: number, context: ContextMenuContext): void {
     if (!this._menuEl) return;
 
@@ -142,6 +193,10 @@ export default class ContextMenu {
     this._menuEl.focus();
   }
 
+  /**
+   * Hides the context menu, cleaning up keyboard event listeners and focus state.
+   * Also closes any open submenus.
+   */
   hide(): void {
     if (!this._menuEl) return;
 
@@ -289,7 +344,9 @@ export default class ContextMenu {
     }
   }
 
-  private _isFocusable(item: MenuItem): item is MenuItem & { disabled: boolean; focus(): void } {
+  private _isFocusable(
+    item: MenuItem
+  ): item is MenuItem & { disabled: boolean; focus(): void } {
     return isFocusable(item) && !item.disabled;
   }
 
