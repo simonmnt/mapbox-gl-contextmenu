@@ -1,0 +1,17 @@
+.menu {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 6px;
+  min-width: 150px;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 120ms ease-out;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
