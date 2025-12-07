@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-contextmenu",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A contextmenu plugin for Mapbox GL JS",
   "type": "module",
   "main": "./dist/index.cjs",

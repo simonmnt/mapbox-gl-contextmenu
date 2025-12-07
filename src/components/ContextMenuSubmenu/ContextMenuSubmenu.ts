@@ -8,7 +8,7 @@ import itemStyles from "../ContextMenuItem/ContextMenuItem.module.scss";
 import chevronSvg from "../../icons/chevron-right.svg?raw";
 
 /** Horizontal overlap between submenu and parent menu item (in pixels) */
-const SUBMENU_OVERLAP = 4;
+const SUBMENU_OVERLAP = 2;
 
 /**
  * Configuration options for creating a context menu submenu.
