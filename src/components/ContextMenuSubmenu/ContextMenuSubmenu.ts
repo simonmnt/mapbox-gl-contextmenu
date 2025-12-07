@@ -54,12 +54,6 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
   private _showDelay: number;
   private _hideDelay: number;
 
-  private _handlers = {
-    mouseenter: null as (() => void) | null,
-    mouseleave: null as (() => void) | null,
-    click: null as ((ev: MouseEvent) => void) | null,
-    keydown: null as ((ev: KeyboardEvent) => void) | null
-  };
 
   /**
    * Creates a new submenu item.
@@ -186,11 +180,11 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     // Don't call super - we want our own unified click handler for submenu toggling
     if (!this._buttonEl) return;
 
-    this._handlers.mouseenter = () => {
+    this._handlers.mouseenter = (() => {
       this._scheduleOpen();
-    };
+    }) as EventListener;
 
-    this._handlers.mouseleave = () => {
+    this._handlers.mouseleave = (() => {
       this._cancelOpen();
       // Don't auto-close if submenu was opened via click (pinned)
       if (this._isPinned) return;
@@ -200,10 +194,10 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
           this._closeSubmenu();
         }
       }, this._hideDelay);
-    };
+    }) as EventListener;
 
     // Unified click handler for submenu toggling (doesn't fire "click" event)
-    this._handlers.click = (ev: MouseEvent) => {
+    this._handlers.click = ((ev: MouseEvent) => {
       ev.preventDefault();
       ev.stopPropagation();
 
@@ -214,15 +208,15 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
         this._openSubmenu();
         this._isPinned = true;
       }
-    };
+    }) as EventListener;
 
     // Prevent Space/Enter from triggering native button click
     // (keyboard navigation is handled by ContextMenu._handleKeydown)
-    this._handlers.keydown = (ev: KeyboardEvent) => {
+    this._handlers.keydown = ((ev: KeyboardEvent) => {
       if (ev.key === " " || ev.key === "Enter") {
         ev.preventDefault();
       }
-    };
+    }) as EventListener;
 
     this._buttonEl.addEventListener("mouseenter", this._handlers.mouseenter);
     this._buttonEl.addEventListener("mouseleave", this._handlers.mouseleave);
@@ -230,21 +224,6 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     this._buttonEl.addEventListener("keydown", this._handlers.keydown);
   }
 
-  protected _removeEventListeners(): void {
-    super._removeEventListeners();
-
-    if (!this._buttonEl) return;
-
-    for (const [event, handler] of Object.entries(this._handlers)) {
-      if (!handler) continue;
-
-      this._buttonEl.removeEventListener(
-        event as keyof HTMLElementEventMap,
-        handler as EventListener
-      );
-      this._handlers[event as keyof typeof this._handlers] = null;
-    }
-  }
 
   private _createChevron(): SVGElement {
     const parser = new DOMParser();

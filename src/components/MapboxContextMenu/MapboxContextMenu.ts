@@ -26,7 +26,7 @@ export default class MapboxContextMenu extends ContextMenu {
 
   private _map: MapboxMap | null = null;
   private _layerIds: string | string[] | undefined = undefined;
-  private _handlers = {
+  private _mapHandlers = {
     contextmenu: null as ((e: MapMouseEvent) => void) | null,
     mousedown: null as ((e: MapMouseEvent) => void) | null,
     move: null as (() => void) | null
@@ -56,7 +56,7 @@ export default class MapboxContextMenu extends ContextMenu {
 
     ContextMenu.prototype.addTo.call(this, map.getContainer());
 
-    this._addEventListeners();
+    this._addMapEventListeners();
 
     return this;
   }
@@ -67,7 +67,7 @@ export default class MapboxContextMenu extends ContextMenu {
   remove(): this {
     if (!this._map) return this;
 
-    this._removeEventListeners();
+    this._removeMapEventListeners();
     super.remove();
 
     if (MapboxContextMenu._openMenu === this) {
@@ -95,8 +95,8 @@ export default class MapboxContextMenu extends ContextMenu {
     }
   }
 
-  private _addEventListeners(): void {
-    this._handlers.contextmenu = (e: MapMouseEvent) => {
+  private _addMapEventListeners(): void {
+    this._mapHandlers.contextmenu = (e: MapMouseEvent) => {
       e.preventDefault();
       const ctx: ContextMenuContext = {
         map: this._map!,
@@ -107,28 +107,28 @@ export default class MapboxContextMenu extends ContextMenu {
       this.show(e.point.x, e.point.y, ctx);
     };
 
-    this._handlers.mousedown = () => {
+    this._mapHandlers.mousedown = () => {
       this.hide();
     };
 
-    this._handlers.move = () => {
+    this._mapHandlers.move = () => {
       this.hide();
     };
 
     if (this._layerIds) {
-      this._map!.on("contextmenu", this._layerIds, this._handlers.contextmenu);
+      this._map!.on("contextmenu", this._layerIds, this._mapHandlers.contextmenu);
     } else {
-      this._map!.on("contextmenu", this._handlers.contextmenu);
+      this._map!.on("contextmenu", this._mapHandlers.contextmenu);
     }
 
-    this._map!.on("move", this._handlers.move);
-    this._map!.on("mousedown", this._handlers.mousedown);
+    this._map!.on("move", this._mapHandlers.move);
+    this._map!.on("mousedown", this._mapHandlers.mousedown);
   }
 
-  private _removeEventListeners(): void {
+  private _removeMapEventListeners(): void {
     if (!this._map) return;
 
-    for (const [event, handler] of Object.entries(this._handlers)) {
+    for (const [event, handler] of Object.entries(this._mapHandlers)) {
       if (!handler) continue;
 
       if (event === "contextmenu") {
@@ -142,7 +142,7 @@ export default class MapboxContextMenu extends ContextMenu {
       } else {
         this._map.off(event, handler as () => void);
       }
-      this._handlers[event as keyof typeof this._handlers] = null;
+      this._mapHandlers[event as keyof typeof this._mapHandlers] = null;
     }
   }
 }

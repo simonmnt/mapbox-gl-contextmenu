@@ -61,8 +61,7 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
 
   protected _currentCtx: ContextMenuContext | null = null;
 
-  private _clickHandler: ((ev: MouseEvent) => void) | null = null;
-  private _mouseenterHandler: (() => void) | null = null;
+  protected _handlers: Record<string, EventListener | null> = {};
 
   /**
    * Creates a new context menu item.
@@ -271,7 +270,7 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
   protected _addEventListeners(): void {
     if (!this._buttonEl) return;
 
-    this._clickHandler = (ev: MouseEvent) => {
+    this._handlers.click = ((ev: MouseEvent) => {
       ev.preventDefault();
 
       if (!this._disabled && this._currentCtx) {
@@ -284,28 +283,26 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
           map
         });
       }
-    };
+    }) as EventListener;
 
-    this._mouseenterHandler = () => {
+    this._handlers.mouseenter = (() => {
       if (!this._disabled) {
         this.focus();
       }
-    };
+    }) as EventListener;
 
-    this._buttonEl.addEventListener("click", this._clickHandler);
-    this._buttonEl.addEventListener("mouseenter", this._mouseenterHandler);
+    this._buttonEl.addEventListener("click", this._handlers.click);
+    this._buttonEl.addEventListener("mouseenter", this._handlers.mouseenter);
   }
 
   protected _removeEventListeners(): void {
-    if (this._buttonEl) {
-      if (this._clickHandler) {
-        this._buttonEl.removeEventListener("click", this._clickHandler);
-        this._clickHandler = null;
-      }
-      if (this._mouseenterHandler) {
-        this._buttonEl.removeEventListener("mouseenter", this._mouseenterHandler);
-        this._mouseenterHandler = null;
-      }
+    if (!this._buttonEl) return;
+
+    for (const [event, handler] of Object.entries(this._handlers)) {
+      if (!handler) continue;
+
+      this._buttonEl.removeEventListener(event, handler);
+      this._handlers[event] = null;
     }
   }
 }

@@ -23,11 +23,9 @@ export default class ContextMenu {
   protected _menuEl: HTMLElement | null = null;
   private _container: HTMLElement | null = null;
 
-  private _menuClickHandler: ((ev: MouseEvent) => void) | null = null;
-  private _menuFocusinHandler: ((ev: FocusEvent) => void) | null = null;
+  protected _handlers: Record<string, EventListener | null> = {};
 
   private _focusedIndex: number = -1;
-  private _keyHandler: ((ev: KeyboardEvent) => void) | null = null;
 
   private _onEscapeLeft: (() => void) | null = null;
 
@@ -156,17 +154,7 @@ export default class ContextMenu {
    */
   remove(): this {
     this._removeItems();
-
-    if (this._menuEl) {
-      if (this._menuClickHandler) {
-        this._menuEl.removeEventListener("click", this._menuClickHandler);
-        this._menuClickHandler = null;
-      }
-      if (this._menuFocusinHandler) {
-        this._menuEl.removeEventListener("focusin", this._menuFocusinHandler);
-        this._menuFocusinHandler = null;
-      }
-    }
+    this._removeEventListeners();
 
     this._menuEl?.remove();
 
@@ -197,8 +185,8 @@ export default class ContextMenu {
 
     this._focusedIndex = -1;
 
-    this._keyHandler = this._handleKeydown.bind(this);
-    document.addEventListener("keydown", this._keyHandler);
+    this._handlers.keydown = this._handleKeydown.bind(this) as EventListener;
+    document.addEventListener("keydown", this._handlers.keydown);
 
     this._menuEl.focus();
   }
@@ -212,9 +200,9 @@ export default class ContextMenu {
 
     this._menuEl.classList.remove(styles.visible);
 
-    if (this._keyHandler) {
-      document.removeEventListener("keydown", this._keyHandler);
-      this._keyHandler = null;
+    if (this._handlers.keydown) {
+      document.removeEventListener("keydown", this._handlers.keydown);
+      this._handlers.keydown = null;
     }
 
     if (this._focusedIndex !== -1) {
@@ -370,12 +358,12 @@ export default class ContextMenu {
     menu.style.position = "absolute";
     menu.setAttribute("tabindex", "-1"); // Essential for focusing the menu itself
 
-    this._menuClickHandler = () => {
+    this._handlers.click = (() => {
       this.hide();
-    };
-    menu.addEventListener("click", this._menuClickHandler);
+    }) as EventListener;
+    menu.addEventListener("click", this._handlers.click);
 
-    this._menuFocusinHandler = (ev: FocusEvent) => {
+    this._handlers.focusin = ((ev: FocusEvent) => {
       const target = ev.target as HTMLElement;
       const li = target.closest("li");
       if (li) {
@@ -396,8 +384,8 @@ export default class ContextMenu {
           this._focusedIndex = index;
         }
       }
-    };
-    menu.addEventListener("focusin", this._menuFocusinHandler);
+    }) as EventListener;
+    menu.addEventListener("focusin", this._handlers.focusin);
 
     this._container.appendChild(menu);
 
@@ -434,6 +422,22 @@ export default class ContextMenu {
       item.remove();
     });
     this._items = [];
+  }
+
+  protected _removeEventListeners(): void {
+    if (!this._menuEl) return;
+
+    for (const [event, handler] of Object.entries(this._handlers)) {
+      if (!handler) continue;
+
+      // keydown is on document, others are on menu element
+      if (event === "keydown") {
+        document.removeEventListener(event, handler);
+      } else {
+        this._menuEl.removeEventListener(event, handler);
+      }
+      this._handlers[event] = null;
+    }
   }
 
   private _positionInViewport(
