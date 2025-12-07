@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-contextmenu",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A contextmenu plugin for Mapbox GL JS",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -32,6 +32,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/aratcliffe/mapbox-gl-contextmenu.git"
+  },
+  "homepage": "https://aratcliffe.github.io/mapbox-gl-contextmenu/",
+  "bugs": {
+    "url": "https://github.com/aratcliffe/mapbox-gl-contextmenu/issues"
   },
   "files": [
     "dist",
