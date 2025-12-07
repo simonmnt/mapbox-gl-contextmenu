@@ -335,11 +335,6 @@ export default class ContextMenu {
         }
         return;
 
-      case "Escape":
-        this.hide();
-        ev.preventDefault();
-        return;
-
       default:
         return;
     }

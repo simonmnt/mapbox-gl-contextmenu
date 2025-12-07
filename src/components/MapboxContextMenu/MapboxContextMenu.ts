@@ -86,12 +86,29 @@ export default class MapboxContextMenu extends ContextMenu {
 
     super.show(x, y, context);
     MapboxContextMenu._openMenu = this;
+
+    // Add document-level Escape handler to close entire menu hierarchy
+    if (!this._handlers.escape) {
+      this._handlers.escape = ((e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          this.hide();
+          e.preventDefault();
+        }
+      }) as EventListener;
+      document.addEventListener("keydown", this._handlers.escape);
+    }
   }
 
   protected hide(): void {
     super.hide();
     if (MapboxContextMenu._openMenu === this) {
       MapboxContextMenu._openMenu = null;
+    }
+
+    // Remove Escape handler
+    if (this._handlers.escape) {
+      document.removeEventListener("keydown", this._handlers.escape);
+      this._handlers.escape = null;
     }
   }
 
