@@ -1,11 +1,11 @@
-import type { ContextMenuContext, MenuItem } from "../types";
+import type { ContextMenuContext, MenuItem } from "../../types";
 import ContextMenuItem, {
   type ContextMenuItemOptions
 } from "../ContextMenuItem/ContextMenuItem";
 import ContextMenu from "../ContextMenu/ContextMenu";
 import styles from "./ContextMenuSubmenu.module.scss";
 import itemStyles from "../ContextMenuItem/ContextMenuItem.module.scss";
-import chevronSvg from "../icons/chevron-right.svg?raw";
+import chevronSvg from "../../icons/chevron-right.svg?raw";
 
 /**
  * Configuration options for creating a context menu submenu.

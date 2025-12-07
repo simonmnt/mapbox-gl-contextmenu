@@ -1,5 +1,5 @@
 import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
-import { ContextMenuContext } from "../types";
+import { ContextMenuContext } from "../../types";
 import { ContextMenu, ContextMenuOptions } from "../ContextMenu";
 
 /**

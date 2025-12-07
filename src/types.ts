@@ -1,8 +1,8 @@
 import type { Map, MapMouseEvent } from "mapbox-gl";
-import type ContextMenuItem from "./ContextMenuItem";
-import type ContextMenuSeparator from "./ContextMenuSeparator";
-import type ContextMenuSubmenu from "./ContextMenuSubmenu";
-import type { ContextMenuTheme } from "./ContextMenu/ContextMenu";
+import type ContextMenuItem from "./components/ContextMenuItem";
+import type ContextMenuSeparator from "./components/ContextMenuSeparator";
+import type ContextMenuSubmenu from "./components/ContextMenuSubmenu";
+import type { ContextMenuTheme } from "./components/ContextMenu/ContextMenu";
 
 /**
  * Context object passed to menu items when the menu is shown.

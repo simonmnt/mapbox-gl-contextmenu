@@ -1,5 +1,5 @@
 import type { Map } from "mapbox-gl";
-import type { ContextMenuContext } from "../types";
+import type { ContextMenuContext } from "../../types";
 
 export class ContextMenuItemEvent extends Event {
   readonly originalEvent: MouseEvent;

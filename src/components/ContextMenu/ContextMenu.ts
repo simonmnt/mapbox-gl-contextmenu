@@ -1,7 +1,7 @@
-import { ContextMenuContext, MenuItem } from "../types";
-import { isFocusable } from "../util/focusable";
+import { ContextMenuContext, MenuItem } from "../../types";
+import { isFocusable } from "../../util/focusable";
 import ContextMenuSubmenu from "../ContextMenuSubmenu/ContextMenuSubmenu";
-import { createElement } from "../util/dom";
+import { createElement } from "../../util/dom";
 import styles from "./ContextMenu.module.scss";
 
 export type ContextMenuTheme = "light" | "dark" | "auto";

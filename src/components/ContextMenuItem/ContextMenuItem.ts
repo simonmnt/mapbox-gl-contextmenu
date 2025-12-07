@@ -1,6 +1,6 @@
-import type { ContextMenuContext, ContextMenuItemEventData } from "../types";
-import { Evented } from "../util/evented";
-import { createElement } from "../util/dom";
+import type { ContextMenuContext, ContextMenuItemEventData } from "../../types";
+import { Evented } from "../../util/evented";
+import { createElement } from "../../util/dom";
 import styles from "./ContextMenuItem.module.scss";
 
 interface ContextMenuItemEvents extends Record<string, unknown> {

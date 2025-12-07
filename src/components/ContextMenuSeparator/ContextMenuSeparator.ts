@@ -1,5 +1,5 @@
-import type { ContextMenuContext } from "../types";
-import { createElement } from "../util/dom";
+import type { ContextMenuContext } from "../../types";
+import { createElement } from "../../util/dom";
 import styles from "./ContextMenuSeparator.module.scss";
 
 /**
