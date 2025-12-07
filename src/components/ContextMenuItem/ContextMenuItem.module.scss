@@ -35,7 +35,7 @@
   }
 
   &.focusedParent:not(:disabled) {
-    background-color: var(--context-menu-item-parent-bg);
+    background-color: var(--context-menu-item-active-bg);
   }
 
   &:disabled {
