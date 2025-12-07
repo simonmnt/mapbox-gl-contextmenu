@@ -28,12 +28,19 @@ export default class MapboxContextMenu extends ContextMenu {
     move: null as (() => void) | null
   };
 
+  /**
+   * Creates a new context menu for Mapbox GL JS or Maplibre GL JS.
+   * @param options - Configuration options for the context menu.
+   * @param options.theme - The color theme: "light", "dark", or "auto" (follows system preference). Defaults to "auto".
+   * @param options.width - The menu width as a CSS value (e.g., "200px") or number in pixels.
+   * @param options.className - Custom CSS class name for the menu element.
+   */
   constructor(options?: MapboxContextMenuOptions) {
     super(options);
   }
 
   /**
-   * Adds the context menu to a Mapbox GL map.
+   * Adds the context menu to a Mapbox GL JS or Maplibre GL JS map.
    *
    * @param map - The map instance.
    * @param layerIds - Optional layer ID(s) to restrict the menu to. Can be a string or array of strings.

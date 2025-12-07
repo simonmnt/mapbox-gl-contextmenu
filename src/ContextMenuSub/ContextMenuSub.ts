@@ -9,6 +9,33 @@ import chevronSvg from "../icons/chevron-right.svg?raw";
 
 export interface ContextMenuSubOptions extends ContextMenuItemOptions {}
 
+/**
+ * A context menu item that displays a submenu when hovered or clicked.
+ *
+ * Submenus extend regular menu items and can contain their own menu items, shown in a child menu.
+ * They display a chevron icon to indicate that child items are available.
+ * Submenus open on hover (with a delay) or on click, and can be navigated
+ * using keyboard controls.
+ *
+ * @example
+ * ```ts
+ * const directionsSubmenu = new ContextMenuSub({
+ *   label: "Get directions",
+ *   icon: "fa-solid fa-route"
+ * });
+ *
+ * const toHere = new ContextMenuItem({
+ *   label: "Directions to here",
+ *   icon: "fa-solid fa-arrow-right-to-arc"
+ * });
+ * toHere.on("click", ({ lngLat }) => {
+ *   // Handle click
+ * });
+ *
+ * directionsSubmenu.addItem(toHere);
+ * menu.addItem(directionsSubmenu);
+ * ```
+ */
 export default class ContextMenuSub extends ContextMenuItem {
   private _submenu: ContextMenu;
   private _chevronEl: SVGElement | null = null;
@@ -23,26 +50,55 @@ export default class ContextMenuSub extends ContextMenuItem {
     keydown: null as ((ev: KeyboardEvent) => void) | null
   };
 
+  /**
+   * Creates a new submenu item.
+   * @param options - Configuration options for the submenu item.
+   * @param options.label - The text label to display.
+   * @param options.icon - CSS class name(s) for the icon (e.g., "fa-solid fa-folder").
+   * @param options.iconPosition - Position of the icon relative to the label. Defaults to "before".
+   * @param options.disabled - Whether the submenu item is disabled. Defaults to `false`.
+   * @param options.className - Custom CSS class name for the `<li>` element.
+   * @param options.buttonClassName - Custom CSS class name for the `<button>` element.
+   */
   constructor(options: ContextMenuSubOptions) {
     super(options);
     this._submenu = new ContextMenu();
   }
 
+  /**
+   * Adds a menu item to the submenu.
+   * @param item - The menu item to add. Can be a `ContextMenuItem` or `ContextMenuSeparator`.
+   * @returns The submenu instance for method chaining.
+   */
   addItem(item: MenuItem): this {
     this._submenu.addItem(item);
     return this;
   }
 
+  /**
+   * Inserts a menu item into the submenu at the specified index.
+   * @param index - The index at which to insert the item. If the index is out of bounds, the item will be added at the end.
+   * @param item - The menu item to insert. Can be a `ContextMenuItem` or `ContextMenuSeparator`.
+   * @returns The submenu instance for method chaining.
+   */
   insertItem(index: number, item: MenuItem): this {
     this._submenu.insertItem(index, item);
     return this;
   }
 
+  /**
+   * Removes a menu item from the submenu, doing any clean up necessary.
+   * @param item - The menu item to remove.
+   * @returns The submenu instance for method chaining.
+   */
   removeItem(item: MenuItem): this {
     this._submenu.removeItem(item);
     return this;
   }
 
+  /**
+   * @internal
+   */
   render(parent: HTMLElement, ctx: ContextMenuContext): HTMLElement {
     const liEl = super.render(parent, ctx);
 
@@ -81,6 +137,7 @@ export default class ContextMenuSub extends ContextMenuItem {
   /**
    * Opens the submenu and focuses its first item.
    * Used for keyboard navigation (Enter/Space/ArrowRight).
+   * @internal
    */
   openAndFocusSubmenu(): void {
     this._openSubmenu();

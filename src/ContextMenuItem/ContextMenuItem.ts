@@ -8,14 +8,41 @@ interface ContextMenuItemEvents extends Record<string, unknown> {
 }
 
 export interface ContextMenuItemOptions {
+  /** Custom CSS class name for the menu item's `<li>` element. */
   className?: string;
+  /** Custom CSS class name for the menu item's `<button>` element. */
   buttonClassName?: string;
+  /** The text label to display. */
   label: string;
+  /** CSS class name(s) for the icon (e.g., "fa-solid fa-location-dot"). */
   icon?: string;
+  /** Position of the icon relative to the label. Defaults to "before". */
   iconPosition?: "before" | "after";
+  /** Whether the menu item is disabled. Defaults to `false`. */
   disabled?: boolean;
 }
 
+/**
+ * A context menu item that can be added to a context menu.
+ *
+ * Menu items can display a label, an optional icon, and can be enabled or disabled.
+ * When clicked, menu items fire a "click" event with context data including the map,
+ * coordinates, and any features at the click location.
+ *
+ * @example
+ * ```ts
+ * const item = new ContextMenuItem({
+ *   label: "Center here",
+ *   icon: "fa-solid fa-crosshairs"
+ * });
+ *
+ * item.on("click", ({ map, lngLat }) => {
+ *   map.flyTo({ center: [lngLat.lng, lngLat.lat] });
+ * });
+ *
+ * menu.addItem(item);
+ * ```
+ **/
 export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
   private _className: string;
   private _buttonClassName: string;
@@ -33,6 +60,16 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
 
   private _clickHandler: ((ev: MouseEvent) => void) | null = null;
 
+  /**
+   * Creates a new context menu item.
+   * @param options - Configuration options for the menu item.
+   * @param options.label - The text label to display.
+   * @param options.icon - CSS class name(s) for the icon (e.g., "fa-solid fa-location-dot").
+   * @param options.iconPosition - Position of the icon relative to the label. Defaults to "before".
+   * @param options.disabled - Whether the menu item is disabled. Defaults to `false`.
+   * @param options.className - Custom CSS class name for the `<li>` element.
+   * @param options.buttonClassName - Custom CSS class name for the `<button>` element.
+   */
   constructor(options: ContextMenuItemOptions) {
     super();
     this._className = options.className ?? styles.menuItem;
@@ -43,10 +80,18 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     this._disabled = options.disabled ?? false;
   }
 
+  /**
+   * Gets the label text of the menu item.
+   * @returns The current label text.
+   */
   get label(): string {
     return this._label;
   }
 
+  /**
+   * Sets the label text of the menu item.
+   * @param value - The new label text to display.
+   */
   set label(value: string) {
     this._label = value;
 
@@ -55,19 +100,35 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     }
   }
 
+  /**
+   * Gets the CSS class name(s) for the icon.
+   * @returns The icon CSS class(es), or `undefined` if no icon is set.
+   */
   get icon(): string | undefined {
     return this._icon;
   }
 
+  /**
+   * Sets the CSS class name(s) for the icon.
+   * @param value - The CSS class name(s) for the icon (e.g., "fa-solid fa-location-dot"), or undefined to remove the icon.
+   */
   set icon(value: string | undefined) {
     this._icon = value;
     this._updateIcon();
   }
 
+  /**
+   * Gets whether the menu item is disabled.
+   * @returns `true` if the menu item is disabled, `false` otherwise.
+   */
   get disabled(): boolean {
     return this._disabled;
   }
 
+  /**
+   * Sets whether the menu item is disabled.
+   * @param value - `true` to disable the menu item, `false` to enable it.
+   */
   set disabled(value: boolean) {
     this._disabled = value;
 
@@ -77,6 +138,9 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     }
   }
 
+  /**
+   * @internal
+   */
   render(parent: HTMLElement, ctx: ContextMenuContext): HTMLElement {
     this._currentCtx = ctx;
 
@@ -92,6 +156,9 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     return liEl;
   }
 
+  /**
+   * Focuses the menu item, adding the focused styling. Only works if the item is not `disabled`.
+   */
   focus(): void {
     if (this._buttonEl && !this._disabled) {
       this._buttonEl.classList.add(styles.focused);
@@ -99,6 +166,9 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     }
   }
 
+  /**
+   * Removes focus from the menu item, removing the focused styling.
+   */
   blur(): void {
     if (this._buttonEl) {
       this._buttonEl.classList.remove(styles.focused);
@@ -106,12 +176,20 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     }
   }
 
+  /**
+   * Programmatically triggers a click on the menu item. Only works if the item is not `disabled`.
+   * This will fire the "click" event with the current context data.
+   */
   click(): void {
     if (this._buttonEl && !this._disabled) {
       this._buttonEl.click();
     }
   }
 
+  /**
+   * Removes the menu item from the DOM and cleans up all event listeners and references.
+   * @returns The menu item instance for method chaining.
+   */
   remove(): this {
     this._removeEventListeners();
 

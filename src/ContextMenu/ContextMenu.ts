@@ -7,8 +7,11 @@ import styles from "./ContextMenu.module.scss";
 export type ContextMenuTheme = "light" | "dark" | "auto";
 
 export interface ContextMenuOptions {
+  /** Custom CSS class name for the menu element. */
   className?: string;
+  /** The color theme: "light", "dark", or "auto" (follows system preference). Defaults to "auto". */
   theme?: ContextMenuTheme;
+  /** The menu width as a CSS value (e.g., "200px") or number in pixels. */
   width?: string | number;
 }
 
