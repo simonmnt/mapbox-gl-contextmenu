@@ -219,7 +219,7 @@ export default class ContextMenu {
     // Close any open submenus
     this._items.forEach((item) => {
       if (item instanceof ContextMenuSubmenu) {
-        item.blur();
+        item.closeSubmenu();
       }
     });
   }
@@ -227,6 +227,10 @@ export default class ContextMenu {
   private _focusItem(index: number): void {
     if (this._focusedIndex !== -1 && this._items[this._focusedIndex]) {
       const prevItem = this._items[this._focusedIndex];
+      // Close submenu if moving away from a submenu item
+      if (prevItem instanceof ContextMenuSubmenu) {
+        prevItem.closeSubmenu();
+      }
       if (isFocusable(prevItem)) {
         prevItem.blur();
       }
@@ -361,36 +365,14 @@ export default class ContextMenu {
     menu.style.position = "absolute";
     menu.setAttribute("tabindex", "-1"); // Essential for focusing the menu itself
 
-    this._handlers.click = (() => {
-      this.hide();
-    }) as EventListener;
+    this._handlers.click = this._handleClick.bind(this) as EventListener;
     menu.addEventListener("click", this._handlers.click);
 
-    this._handlers.focusin = ((ev: FocusEvent) => {
-      const target = ev.target as HTMLElement;
-      const li = target.closest("li");
-      if (li) {
-        const index = this._items.findIndex((item) => {
-          if ("_liEl" in item) {
-            return (
-              (item as unknown as { _liEl: HTMLElement | null })._liEl === li
-            );
-          }
-          return false;
-        });
-        if (index !== -1 && index !== this._focusedIndex) {
-          // Blur previous item without calling focus on new (it's already focused)
-          if (this._focusedIndex !== -1 && this._items[this._focusedIndex]) {
-            const prevItem = this._items[this._focusedIndex];
-            if (isFocusable(prevItem)) {
-              prevItem.blur();
-            }
-          }
-          this._focusedIndex = index;
-        }
-      }
-    }) as EventListener;
+    this._handlers.focusin = this._handleFocusin.bind(this) as EventListener;
     menu.addEventListener("focusin", this._handlers.focusin);
+
+    this._handlers.mouseleave = this._handleMouseleave.bind(this) as EventListener;
+    menu.addEventListener("mouseleave", this._handlers.mouseleave);
 
     this._container.appendChild(menu);
 
@@ -445,6 +427,38 @@ export default class ContextMenu {
     }
   }
 
+  private _handleClick(): void {
+    this.hide();
+  }
+
+  private _handleFocusin(ev: FocusEvent): void {
+    const target = ev.target as HTMLElement;
+    const li = target.closest("li");
+    if (li) {
+      const index = this._findItemIndexByLiEl(li);
+      if (index !== -1 && index !== this._focusedIndex) {
+        // Blur previous item without calling focus on new (it's already focused)
+        if (this._focusedIndex !== -1 && this._items[this._focusedIndex]) {
+          const prevItem = this._items[this._focusedIndex];
+          if (isFocusable(prevItem)) {
+            prevItem.blur();
+          }
+        }
+        this._focusedIndex = index;
+      }
+    }
+  }
+
+  private _handleMouseleave(): void {
+    if (this._focusedIndex !== -1 && this._items[this._focusedIndex]) {
+      const item = this._items[this._focusedIndex];
+      if (isFocusable(item)) {
+        item.blur();
+      }
+      this._focusedIndex = -1;
+    }
+  }
+
   private _focusItemUnderMouse(): void {
     if (!this._menuEl) return;
 
@@ -452,19 +466,21 @@ export default class ContextMenu {
     if (hoveredButton) {
       const li = hoveredButton.closest("li");
       if (li) {
-        const index = this._items.findIndex((item) => {
-          if ("_liEl" in item) {
-            return (
-              (item as unknown as { _liEl: HTMLElement | null })._liEl === li
-            );
-          }
-          return false;
-        });
+        const index = this._findItemIndexByLiEl(li);
         if (index !== -1) {
           this._focusItem(index);
         }
       }
     }
+  }
+
+  private _findItemIndexByLiEl(li: Element): number {
+    return this._items.findIndex((item) => {
+      if ("_liEl" in item) {
+        return (item as unknown as { _liEl: HTMLElement | null })._liEl === li;
+      }
+      return false;
+    });
   }
 
   private _positionInViewport(

@@ -54,7 +54,6 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
   private _showDelay: number;
   private _hideDelay: number;
 
-
   /**
    * Creates a new submenu item.
    * @param options - Configuration options for the submenu item.
@@ -140,7 +139,61 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
 
   blur(): void {
     super.blur();
-    this._closeSubmenu();
+    // Don't close submenu here - it stays open based on its own state
+    // and is closed by mouseleave or when another item is focused
+  }
+
+  remove(): this {
+    this._removeEventListeners();
+    this._cancelOpen();
+    this.closeSubmenu();
+    this._submenu.remove();
+    super.remove();
+    this._submenuContainer = null;
+    return this;
+  }
+
+  /**
+   * Closes the submenu.
+   * @internal
+   */
+  closeSubmenu(): void {
+    const submenuEl = this._submenu.menuElement;
+    if (submenuEl && this._handlers.submenuMouseleave) {
+      submenuEl.removeEventListener(
+        "mouseleave",
+        this._handlers.submenuMouseleave
+      );
+      this._handlers.submenuMouseleave = null;
+    }
+    this._submenu.hide();
+    this._isPinned = false;
+    this._buttonEl?.classList.remove(itemStyles.focusedParent);
+  }
+
+  private _handleMouseenter(): void {
+    if (!this._disabled) {
+      this.focus();
+    }
+    this._scheduleOpen();
+  }
+
+  private _handleMouseleave(): void {
+    this._cancelOpen();
+    this._scheduleClose();
+  }
+
+  private _handleClick(ev: MouseEvent): void {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const submenuEl = this._submenu.menuElement;
+    if (submenuEl?.classList.contains("visible")) {
+      this.closeSubmenu();
+    } else {
+      this._openSubmenu();
+      this._isPinned = true;
+    }
   }
 
   /**
@@ -152,81 +205,38 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     this._openSubmenu();
     this._isPinned = true;
 
-    // Show parent item with lighter highlight while submenu has focus
+    // Remove focused class since focusedParent is now applied by _openSubmenu
     this._buttonEl?.classList.remove(itemStyles.focused);
-    this._buttonEl?.classList.add(itemStyles.focusedParent);
 
     // Set up callback so ArrowLeft returns focus to this item
     this._submenu.onEscapeLeft = () => {
-      this._buttonEl?.classList.remove(itemStyles.focusedParent);
-      this._closeSubmenu();
+      this.closeSubmenu();
       this.focus();
     };
 
     this._submenu.focusFirstItem();
   }
 
-  remove(): this {
-    this._removeEventListeners();
-    this._cancelOpen();
-    this._closeSubmenu();
-    this._submenu.remove();
-    super.remove();
-    this._submenuContainer = null;
-    return this;
-  }
-
   protected _addEventListeners(): void {
     // Don't call super - we want our own unified click handler for submenu toggling
     if (!this._buttonEl) return;
 
-    this._handlers.mouseenter = (() => {
-      if (!this._disabled) {
-        this.focus();
-      }
-      this._scheduleOpen();
-    }) as EventListener;
+    this._handlers.mouseenter = this._handleMouseenter.bind(
+      this
+    ) as EventListener;
+    this._handlers.mouseleave = this._handleMouseleave.bind(
+      this
+    ) as EventListener;
 
-    this._handlers.mouseleave = (() => {
-      this._cancelOpen();
-      // Don't auto-close if submenu was opened via click (pinned)
-      if (this._isPinned) return;
-      // Close after a delay to allow moving to submenu
-      setTimeout(() => {
-        if (!this._isHovering() && !this._isPinned) {
-          this._closeSubmenu();
-        }
-      }, this._hideDelay);
-    }) as EventListener;
+    this._handlers.click = this._handleClick.bind(this) as EventListener;
 
-    // Unified click handler for submenu toggling (doesn't fire "click" event)
-    this._handlers.click = ((ev: MouseEvent) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      const submenuEl = this._submenu.menuElement;
-      if (submenuEl?.classList.contains("visible")) {
-        this._closeSubmenu();
-      } else {
-        this._openSubmenu();
-        this._isPinned = true;
-      }
-    }) as EventListener;
-
-    // Prevent Space/Enter from triggering native button click
-    // (keyboard navigation is handled by ContextMenu._handleKeydown)
-    this._handlers.keydown = ((ev: KeyboardEvent) => {
-      if (ev.key === " " || ev.key === "Enter") {
-        ev.preventDefault();
-      }
-    }) as EventListener;
+    this._handlers.keydown = this._handleKeydown.bind(this) as EventListener;
 
     this._buttonEl.addEventListener("mouseenter", this._handlers.mouseenter);
     this._buttonEl.addEventListener("mouseleave", this._handlers.mouseleave);
     this._buttonEl.addEventListener("click", this._handlers.click);
     this._buttonEl.addEventListener("keydown", this._handlers.keydown);
   }
-
 
   private _createChevron(): SVGElement {
     const parser = new DOMParser();
@@ -302,12 +312,37 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
       // Reposition with correct coordinates
       this._submenu.show(x, y, this._currentCtx);
     }
+
+    // Show submenu item as active while child menu is open
+    this._buttonEl?.classList.add(itemStyles.focusedParent);
+
+    // Add mouseleave handler on child menu to close when mouse leaves both
+    if (submenuEl && !this._handlers.submenuMouseleave) {
+      this._handlers.submenuMouseleave =
+        this._handleSubmenuMouseleave.bind(this);
+      submenuEl.addEventListener("mouseleave", this._handlers.submenuMouseleave);
+    }
   }
 
-  private _closeSubmenu(): void {
-    this._submenu.hide();
-    this._isPinned = false;
-    this._buttonEl?.classList.remove(itemStyles.focusedParent);
+  private _handleKeydown(ev: KeyboardEvent): void {
+    // Prevent Space/Enter from triggering native button click
+    // (keyboard navigation is handled by ContextMenu._handleKeydown)
+    if (ev.key === " " || ev.key === "Enter") {
+      ev.preventDefault();
+    }
+  }
+
+  private _handleSubmenuMouseleave(): void {
+    this._scheduleClose();
+  }
+
+  private _scheduleClose(): void {
+    if (this._isPinned) return;
+    setTimeout(() => {
+      if (!this._isHovering() && !this._isPinned) {
+        this.closeSubmenu();
+      }
+    }, this._hideDelay);
   }
 
   private _isHovering(): boolean {
