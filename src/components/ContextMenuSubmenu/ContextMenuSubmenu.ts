@@ -181,6 +181,9 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     if (!this._buttonEl) return;
 
     this._handlers.mouseenter = (() => {
+      if (!this._disabled) {
+        this.focus();
+      }
       this._scheduleOpen();
     }) as EventListener;
 

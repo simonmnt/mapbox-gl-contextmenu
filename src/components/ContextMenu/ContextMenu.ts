@@ -189,6 +189,9 @@ export default class ContextMenu {
     document.addEventListener("keydown", this._handlers.keydown);
 
     this._menuEl.focus();
+
+    // Check if mouse is already over a menu item (menu appeared under cursor)
+    this._focusItemUnderMouse();
   }
 
   /**
@@ -369,7 +372,9 @@ export default class ContextMenu {
       if (li) {
         const index = this._items.findIndex((item) => {
           if ("_liEl" in item) {
-            return (item as unknown as { _liEl: HTMLElement | null })._liEl === li;
+            return (
+              (item as unknown as { _liEl: HTMLElement | null })._liEl === li
+            );
           }
           return false;
         });
@@ -437,6 +442,28 @@ export default class ContextMenu {
         this._menuEl.removeEventListener(event, handler);
       }
       this._handlers[event] = null;
+    }
+  }
+
+  private _focusItemUnderMouse(): void {
+    if (!this._menuEl) return;
+
+    const hoveredButton = this._menuEl.querySelector("button:hover");
+    if (hoveredButton) {
+      const li = hoveredButton.closest("li");
+      if (li) {
+        const index = this._items.findIndex((item) => {
+          if ("_liEl" in item) {
+            return (
+              (item as unknown as { _liEl: HTMLElement | null })._liEl === li
+            );
+          }
+          return false;
+        });
+        if (index !== -1) {
+          this._focusItem(index);
+        }
+      }
     }
   }
 
