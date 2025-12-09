@@ -9,7 +9,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  height: var(--context-menu-button-height);
+  min-height: var(--context-menu-button-height);
   padding: 0px 4px 0px 8px;
   margin: 0;
   border: none;
