@@ -1,6 +1,10 @@
-import type { ContextMenuContext, ContextMenuItemEventData } from "../../types";
+import type {
+  Content,
+  ContextMenuContext,
+  ContextMenuItemEventData
+} from "../../types";
 import { Evented } from "../../util/evented";
-import { createElement } from "../../util/dom";
+import { createElement, createSlotElement } from "../../util/dom";
 import styles from "./ContextMenuItem.module.scss";
 
 interface ContextMenuItemEvents extends Record<string, unknown> {
@@ -17,10 +21,10 @@ export interface ContextMenuItemOptions {
   buttonClassName?: string;
   /** The text label to display. */
   label: string;
-  /** Icon for the menu item. Can be CSS class name(s) (e.g., "fa-solid fa-location-dot") or an HTMLElement. If an HTMLElement is provided, it will be moved into the menu item. */
-  icon?: string | HTMLElement;
-  /** Position of the icon relative to the label. Defaults to "before". */
-  iconPosition?: "before" | "after";
+  /** Content to display before the label (e.g., an icon element). */
+  start?: Content;
+  /** Content to display after the label. */
+  end?: Content;
   /** Whether the menu item is disabled. Defaults to `false`. */
   disabled?: boolean;
 }
@@ -28,15 +32,15 @@ export interface ContextMenuItemOptions {
 /**
  * A context menu item that can be added to a context menu.
  *
- * Menu items can display a label, an optional icon, and can be enabled or disabled.
- * When clicked, menu items fire a "click" event with context data including the map,
- * coordinates, and any features at the click location.
+ * Menu items can display a label with optional content before and/or after it,
+ * and can be enabled or disabled. When clicked, menu items fire a "click" event
+ * with context data including the map, coordinates, and any features at the click location.
  *
  * @example
  * ```ts
  * const item = new ContextMenuItem({
  *   label: "Center here",
- *   icon: "fa-solid fa-crosshairs"
+ *   start: { className: "fa-solid fa-crosshairs" }
  * });
  *
  * item.on("click", ({ map, lngLat }) => {
@@ -50,14 +54,15 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
   private _className: string;
   private _buttonClassName: string;
   private _label: string;
-  private _icon: string | HTMLElement | undefined;
-  private _iconPosition: "before" | "after";
+  private _start: Content | undefined;
+  private _end: Content | undefined;
   protected _disabled: boolean;
 
   protected _liEl: HTMLElement | null = null;
   protected _buttonEl: HTMLElement | null = null;
-  private _iconEl: HTMLElement | null = null;
+  private _startEl: HTMLElement | null = null;
   private _labelEl: HTMLElement | null = null;
+  private _endEl: HTMLElement | null = null;
 
   protected _currentCtx: ContextMenuContext | null = null;
 
@@ -67,8 +72,8 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
    * Creates a new context menu item.
    * @param options - Configuration options for the menu item.
    * @param options.label - The text label to display.
-   * @param options.icon - Icon for the menu item. Can be CSS class name(s) (e.g., "fa-solid fa-location-dot") or an HTMLElement.
-   * @param options.iconPosition - Position of the icon relative to the label. Defaults to "before".
+   * @param options.start - Content to display before the label (e.g., an icon element).
+   * @param options.end - Content to display after the label.
    * @param options.disabled - Whether the menu item is disabled. Defaults to `false`.
    * @param options.className - Custom CSS class name for the `<li>` element.
    * @param options.buttonClassName - Custom CSS class name for the `<button>` element.
@@ -82,8 +87,8 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
       ? `${styles.button} ${options.buttonClassName}`
       : styles.button;
     this._label = options.label;
-    this._icon = options.icon;
-    this._iconPosition = options.iconPosition ?? "before";
+    this._start = options.start;
+    this._end = options.end;
     this._disabled = options.disabled ?? false;
   }
 
@@ -108,20 +113,37 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
   }
 
   /**
-   * Gets the icon for the menu item.
-   * @returns The icon CSS class(es) or HTMLElement, or `undefined` if no icon is set.
+   * Gets the start slot content of the menu item.
+   * @returns The start content (string or HTMLElement), or `undefined` if not set.
    */
-  get icon(): string | HTMLElement | undefined {
-    return this._icon;
+  get start(): Content | undefined {
+    return this._start;
   }
 
   /**
-   * Sets the icon for the menu item.
-   * @param value - CSS class name(s) (e.g., "fa-solid fa-location-dot"), an HTMLElement, or undefined to remove the icon.
+   * Sets the start slot content of the menu item.
+   * @param value - A string (rendered as text) or HTMLElement, or undefined to remove.
    */
-  set icon(value: string | HTMLElement | undefined) {
-    this._icon = value;
-    this._updateIcon();
+  set start(value: Content | undefined) {
+    this._start = value;
+    this._startEl = this._updateSlot(value, styles.start, this._startEl, this._labelEl);
+  }
+
+  /**
+   * Gets the end slot content of the menu item.
+   * @returns The end content (string or HTMLElement), or `undefined` if not set.
+   */
+  get end(): Content | undefined {
+    return this._end;
+  }
+
+  /**
+   * Sets the end slot content of the menu item.
+   * @param value - A string (rendered as text) or HTMLElement, or undefined to remove.
+   */
+  set end(value: Content | undefined) {
+    this._end = value;
+    this._endEl = this._updateSlot(value, styles.end, this._endEl);
   }
 
   /**
@@ -203,8 +225,9 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
 
     this._liEl = null;
     this._buttonEl = null;
-    this._iconEl = null;
+    this._startEl = null;
     this._labelEl = null;
+    this._endEl = null;
     this._currentCtx = null;
     return this;
   }
@@ -222,24 +245,19 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
       ...(this._disabled && { disabled: "disabled" })
     }) as HTMLButtonElement;
 
-    const iconEl = createElement("span", {
-      class: styles.icon
-    });
-    this._iconEl = iconEl;
-    this._updateIcon();
-
     const labelEl = createElement("span", {
-      class: styles.contextMenuLabel
+      class: styles.label
     });
     labelEl.textContent = this._label;
 
-    if (this._iconPosition === "before") {
-      button.appendChild(iconEl);
-      button.appendChild(labelEl);
-    } else {
-      button.appendChild(labelEl);
-      button.appendChild(iconEl);
-    }
+    this._startEl = createSlotElement(this._start, { className: styles.start });
+    this._endEl = createSlotElement(this._end, { className: styles.end });
+
+    if (this._startEl) button.appendChild(this._startEl);
+
+    button.appendChild(labelEl);
+
+    if (this._endEl) button.appendChild(this._endEl);
 
     li.appendChild(button);
 
@@ -250,24 +268,29 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
     this._addEventListeners();
   }
 
-  private _updateIcon(): void {
-    if (!this._iconEl) return;
+  private _updateSlot(
+    content: Content | undefined,
+    className: string,
+    currentEl: HTMLElement | null,
+    insertBefore?: HTMLElement | null
+  ): HTMLElement | null {
+    const newEl = createSlotElement(content, { className });
 
-    this._iconEl.innerHTML = "";
-    this._iconEl.className = styles.icon;
-
-    if (!this._icon) {
-      this._iconEl.style.display = "none";
-      return;
+    if (currentEl) {
+      if (newEl) {
+        currentEl.replaceWith(newEl);
+      } else {
+        currentEl.remove();
+      }
+    } else if (newEl && this._buttonEl) {
+      if (insertBefore) {
+        this._buttonEl.insertBefore(newEl, insertBefore);
+      } else {
+        this._buttonEl.appendChild(newEl);
+      }
     }
 
-    this._iconEl.style.display = "";
-
-    if (typeof this._icon === "string") {
-      this._iconEl.className = `${styles.icon} ${this._icon}`;
-    } else {
-      this._iconEl.appendChild(this._icon);
-    }
+    return newEl;
   }
 
   protected _addEventListeners(): void {

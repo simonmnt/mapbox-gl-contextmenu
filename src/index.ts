@@ -11,8 +11,10 @@ export { default as ContextMenuSubmenu } from "./components/ContextMenuSubmenu";
 export type { ContextMenuSubmenuOptions } from "./components/ContextMenuSubmenu";
 
 export type {
+  Content,
   ContextMenuContext,
   ContextMenuItemEventData,
   Focusable,
-  MenuItem
+  MenuItem,
+  SlotOptions
 } from "./types";

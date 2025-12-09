@@ -70,7 +70,7 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
    */
   constructor(options: ContextMenuSubmenuOptions) {
     super(options);
-    this._submenu = new ContextMenu({ isSubmenu: true });
+    this._submenu = new ContextMenu();
     this._showDelay = options.showDelay ?? 300;
     this._hideDelay = options.hideDelay ?? 200;
   }

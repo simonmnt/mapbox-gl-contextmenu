@@ -50,7 +50,7 @@ const menu = new MapboxContextMenu({ theme: "auto", width: 180 });
 
 const centerItem = new ContextMenuItem({
   label: "Center map here",
-  icon: "fa-solid fa-crosshairs"
+  start: { className: "fa-solid fa-crosshairs" }
 });
 
 centerItem.on("click", ({ map, lngLat }) => {
@@ -73,7 +73,7 @@ When using the UMD build via a script tag, the library extends the `mapboxgl` gl
 
   const centerItem = new ContextMenuItem({
     label: "Center map here",
-    icon: "fa-solid fa-crosshairs"
+    start: { className: "fa-solid fa-crosshairs" }
   });
 
   centerItem.on("click", ({ map, lngLat }) => {
@@ -113,12 +113,12 @@ const menu = new MapboxContextMenu(options);
 
 ### ContextMenuItem
 
-A clickable menu item with an optional icon.
+A clickable menu item with optional content slots.
 
 ```ts
 const item = new ContextMenuItem({
   label: "Copy coordinates",
-  icon: "fa-solid fa-copy"
+  start: { className: "fa-solid fa-copy" }
 });
 
 item.on("click", ({ lngLat, map, point, features }) => {
@@ -129,8 +129,8 @@ item.on("click", ({ lngLat, map, point, features }) => {
 **Options:**
 
 - `label` - A textual label to display.
-- `icon` - CSS class name(s) for an icon font, or an `HTMLElement`.
-- `iconPosition` - Position of the icon: `'before'` (default) or `'after'`.
+- `start` - Content to display before the label. See [Slot Content](#slot-content).
+- `end` - Content to display after the label. See [Slot Content](#slot-content).
 - `disabled` - Whether the item is disabled. Defaults to `false`.
 - `className` - Custom CSS class for the `<li>` element.
 - `buttonClassName` - Custom CSS class for the `<button>` element.
@@ -138,7 +138,8 @@ item.on("click", ({ lngLat, map, point, features }) => {
 **Properties:**
 
 - `label` - Get/set the label text.
-- `icon` - Get/set the icon.
+- `start` - Get/set the start slot content.
+- `end` - Get/set the end slot content.
 - `disabled` - Get/set the disabled state.
 
 **Events:**
@@ -152,7 +153,7 @@ A menu item that displays a nested submenu on hover or click.
 ```ts
 const submenu = new ContextMenuSubmenu({
   label: "More options",
-  icon: "fa-solid fa-ellipsis"
+  start: { className: "fa-solid fa-ellipsis" }
 });
 
 submenu.addItem(new ContextMenuItem({ label: "Option A" }));
@@ -185,6 +186,61 @@ menu.addItem(new ContextMenuItem({ label: "Delete" }));
 
 - `className` - Custom CSS class for the separator element.
 
+## Slot Content
+
+The `start` and `end` slots accept three types of content:
+
+### String
+
+Rendered as text content:
+
+```ts
+new ContextMenuItem({
+  label: "Rating",
+  end: "★★★"
+});
+```
+
+### HTMLElement
+
+For full control, pass a DOM element directly:
+
+```ts
+const icon = document.createElement("i");
+icon.className = "fa-solid fa-star";
+
+new ContextMenuItem({
+  label: "Favorite",
+  start: icon
+});
+```
+
+### Object Notation
+
+A concise way to create elements:
+
+```ts
+new ContextMenuItem({
+  label: "Favorite",
+  start: { className: "fa-solid fa-star" }
+});
+```
+
+Object notation supports:
+
+- `as` - Element type to create. Defaults to `'span'`.
+- `className` - CSS class name(s) to apply.
+- `content` - Text content for the element.
+- `onClick` - Click event handler.
+
+```ts
+new ContextMenuItem({
+  label: "Settings",
+  start: { as: "i", className: "fa-solid fa-gear" },
+  end: { content: "Beta", className: "badge" }
+});
+```
+
 ## Keyboard Navigation
 
 The menu supports full keyboard navigation:
@@ -204,6 +260,7 @@ Custom styling can be applied via the `className` options on each component, or 
 | Variable                               | Description             | Light Default | Dark Default |
 | -------------------------------------- | ----------------------- | ------------- | ------------ |
 | `--context-menu-bg`                    | Menu background color   | `white`       | `#141414`    |
+| `--context-menu-font-family`           | Menu font family        | System stack  | System stack |
 | `--context-menu-border-radius`         | Menu border radius      | `5px`         | `5px`        |
 | `--context-menu-min-width`             | Menu minimum width      | `200px`       | `200px`      |
 | `--context-menu-item-text-color`       | Item text color         | `black`       | `white`      |

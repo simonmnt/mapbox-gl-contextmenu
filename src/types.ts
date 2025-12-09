@@ -48,3 +48,25 @@ export interface Focusable {
 }
 
 export type MenuItem = ContextMenuItem | ContextMenuSeparator | ContextMenuSubmenu;
+
+/**
+ * Options for creating a slot element via object notation.
+ */
+export interface SlotOptions {
+  /** The element type to create. Defaults to 'span'. */
+  as?: string;
+  /** CSS class name(s) to apply. */
+  className?: string;
+  /** Text content for the element. */
+  content?: string;
+  /** Click event handler. */
+  onClick?: (ev: MouseEvent) => void;
+}
+
+/**
+ * Content that can be placed in a slot.
+ * - `string`: Rendered as text content
+ * - `HTMLElement`: Rendered as-is
+ * - `SlotOptions`: Creates an element with the specified options
+ */
+export type Content = string | HTMLElement | SlotOptions;

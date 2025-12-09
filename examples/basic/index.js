@@ -18,7 +18,7 @@ map.on("load", () => {
 
   const showCoordinatesItem = new ContextMenuItem({
     label: "Copy coordinates",
-    icon: "fa-solid fa-location-dot"
+    start: { className: "fa-solid fa-location-dot" }
   });
 
   showCoordinatesItem.on("click", async ({ lngLat }) => {
@@ -32,7 +32,7 @@ map.on("load", () => {
 
   const centerMapItem = new ContextMenuItem({
     label: "Center map here",
-    icon: "fa-solid fa-crosshairs"
+    start: { className: "fa-solid fa-crosshairs" }
   });
 
   centerMapItem.on("click", ({ map, lngLat }) => {
@@ -48,7 +48,7 @@ map.on("load", () => {
 
   const directionsSubmenu = new ContextMenuSubmenu({
     label: "Get directions",
-    icon: "fa-solid fa-route"
+    start: { className: "fa-solid fa-route" }
   });
 
   const directionsToHere = new ContextMenuItem({

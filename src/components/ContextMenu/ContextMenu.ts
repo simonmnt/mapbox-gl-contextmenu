@@ -14,11 +14,6 @@ export interface ContextMenuOptions {
   theme?: ContextMenuTheme;
   /** The menu width as a CSS value (e.g., "200px") or number in pixels. */
   width?: string | number;
-  /**
-   * Whether this menu is a submenu. Submenus have elevated shadow styling.
-   * @internal
-   */
-  isSubmenu?: boolean;
 }
 
 export default class ContextMenu {
@@ -28,7 +23,6 @@ export default class ContextMenu {
   private _width: string | number | undefined;
   protected _menuEl: HTMLElement | null = null;
   private _container: HTMLElement | null = null;
-  private _isSubmenu: boolean = false;
 
   protected _handlers: Record<string, EventListener | null> = {};
 
@@ -42,7 +36,6 @@ export default class ContextMenu {
       : styles.menu;
     this._theme = options?.theme ?? "auto";
     this._width = options?.width;
-    this._isSubmenu = options?.isSubmenu ?? false;
   }
 
   /**
@@ -423,9 +416,6 @@ export default class ContextMenu {
   private _applyClassName(): void {
     if (!this._menuEl) return;
     this._menuEl.className = this._className;
-    if (this._isSubmenu) {
-      this._menuEl.classList.add(styles.submenu);
-    }
   }
 
   private _updateWidth(): void {
