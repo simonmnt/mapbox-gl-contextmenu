@@ -287,13 +287,14 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
 
     const submenuEl = this._submenu.menuElement;
     if (submenuEl) {
-      // Get the first item's top padding to align submenu item with parent item
+      // Calculate offset from menu top to first item top to align with parent
       const firstChild = submenuEl.firstElementChild as HTMLElement | null;
-      const firstChildPaddingTop = firstChild
-        ? parseFloat(getComputedStyle(firstChild).paddingTop)
-        : 0;
+      const menuTop = submenuEl.getBoundingClientRect().top;
+      const firstChildTop = firstChild
+        ? firstChild.getBoundingClientRect().top
+        : menuTop;
 
-      y -= firstChildPaddingTop;
+      y -= firstChildTop - menuTop;
 
       const submenuWidth = submenuEl.offsetWidth;
       const submenuHeight = submenuEl.offsetHeight;

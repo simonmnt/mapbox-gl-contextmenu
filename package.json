@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-contextmenu",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A contextmenu plugin for Mapbox GL JS",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -17,6 +17,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:tailwind": "vite --config vite.config.tailwind.ts",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
     "docs": "typedoc"

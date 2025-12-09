@@ -17,11 +17,11 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  height: 28px;
+  height: var(--context-menu-button-height, 28px);
   padding: 0px 4px 0px 12px;
   margin: 0;
   border: none;
-  border-radius: 3px;
+  border-radius: var(--context-menu-button-radius, 3px);
   background: none;
   color: var(--context-menu-item-text-color);
   text-align: left;
@@ -33,7 +33,7 @@
   font-size: var(--context-menu-item-font-size);
 
   &.focused:not(:disabled):not(.focusedParent) {
-    background-color: var(--context-menu-item-hover-bg);
+    background-color: var(--context-menu-item-focus-bg);
   }
 
   &.focusedParent:not(:disabled) {
