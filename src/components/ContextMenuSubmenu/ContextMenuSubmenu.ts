@@ -5,7 +5,6 @@ import ContextMenuItem, {
 import ContextMenu from "../ContextMenu/ContextMenu";
 import styles from "./ContextMenuSubmenu.module.scss";
 import itemStyles from "../ContextMenuItem/ContextMenuItem.module.scss";
-import chevronSvg from "../../icons/chevron-right.svg?raw";
 
 /** Horizontal overlap between submenu and parent menu item (in pixels) */
 const SUBMENU_OVERLAP = 6;
@@ -50,7 +49,7 @@ export interface ContextMenuSubmenuOptions extends ContextMenuItemOptions {
  */
 export default class ContextMenuSubmenu extends ContextMenuItem {
   private _submenu: ContextMenu;
-  private _chevronEl: SVGElement | null = null;
+  private _chevronEl: HTMLSpanElement | null = null;
   private _hoverTimeout: number | null = null;
   private _submenuContainer: HTMLElement | null = null;
   private _isPinned: boolean = false;
@@ -114,7 +113,8 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     const liEl = super.render(parent, ctx);
 
     if (!this._chevronEl && this._buttonEl) {
-      this._chevronEl = this._createChevron();
+      this._chevronEl = document.createElement("span");
+      this._chevronEl.className = styles.chevron;
       this._buttonEl.appendChild(this._chevronEl);
     }
 
@@ -230,14 +230,6 @@ export default class ContextMenuSubmenu extends ContextMenuItem {
     this._buttonEl.addEventListener("mouseleave", this._handlers.mouseleave);
     this._buttonEl.addEventListener("click", this._handlers.click);
     this._buttonEl.addEventListener("keydown", this._handlers.keydown);
-  }
-
-  private _createChevron(): SVGElement {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(chevronSvg, "image/svg+xml");
-    const svg = svgDoc.documentElement as unknown as SVGElement;
-    svg.setAttribute("class", styles.chevron);
-    return svg;
   }
 
   private _scheduleOpen(): void {
