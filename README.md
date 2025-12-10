@@ -99,17 +99,17 @@ const menu = new MapboxContextMenu(options);
 
 **Options:**
 
-- `theme` - Theme to use: `'light'`, `'dark'`, or `'auto'` (follows system preference). Defaults to `'auto'`.
-- `width` - Menu width as a CSS value (e.g., `'200px'`) or number in pixels.
-- `className` - Custom CSS class name for the menu element.
+- `theme` - theme to use: `'light'`, `'dark'`, or `'auto'` (follows system preference). Defaults to `'auto'`.
+- `width` - menu width as a CSS value (e.g., `'200px'`) or number in pixels.
+- `className` - custom CSS class name for the menu element.
 
 **Methods:**
 
-- `addItem(item)` - Add a menu item.
-- `insertItem(index, item)` - Insert a menu item at a specific index.
-- `removeItem(item)` - Remove a menu item.
-- `addTo(map, target?)` - Add the menu to a map. Optionally restrict to specific layer(s). See [Layer Targeting](#layer-targeting).
-- `remove()` - Remove the menu from the map.
+- `addItem(item)` - add a menu item.
+- `insertItem(index, item)` - insert a menu item at a specific index.
+- `removeItem(item)` - remove a menu item.
+- `addTo(map, target?)` - add the menu to a map. Optionally restrict to specific layer(s). See [Layer Targeting](#layer-targeting).
+- `remove()` - remove the menu from the map.
 
 ### ContextMenuItem
 
@@ -128,23 +128,23 @@ item.on("click", ({ lngLat, map, point, features }) => {
 
 **Options:**
 
-- `label` - A textual label to display.
-- `start` - Content to display before the label. See [Slot Content](#slot-content).
-- `end` - Content to display after the label. See [Slot Content](#slot-content).
-- `disabled` - Whether the item is disabled. Defaults to `false`.
-- `className` - Custom CSS class for the `<li>` element.
-- `buttonClassName` - Custom CSS class for the `<button>` element.
+- `label` - a textual label to display.
+- `start` - content to display before the label. See [Slot Content](#slot-content).
+- `end` - content to display after the label. See [Slot Content](#slot-content).
+- `disabled` - whether the item is disabled. Defaults to `false`.
+- `className` - custom CSS class for the `<li>` element.
+- `buttonClassName` - custom CSS class for the `<button>` element.
 
 **Properties:**
 
-- `label` - Get/set the label text.
-- `start` - Get/set the start slot content.
-- `end` - Get/set the end slot content.
-- `disabled` - Get/set the disabled state.
+- `label` - get/set the label text.
+- `start` - get/set the start slot content.
+- `end` - get/set the end slot content.
+- `disabled` - get/set the disabled state.
 
 **Events:**
 
-- `click` - Fired when the item is clicked. Event data includes `lngLat`, `point`, `map`, `features`, and `originalEvent`.
+- `click` - fired when the item is clicked. Event data includes `lngLat`, `point`, `map`, `features`, and `originalEvent`.
 
 ### ContextMenuSubmenu
 
@@ -163,14 +163,14 @@ submenu.addItem(new ContextMenuItem({ label: "Option B" }));
 **Options:**
 
 - All `ContextMenuItem` options, plus:
-- `showDelay` - Delay in ms before showing the submenu on hover. Defaults to `300`.
-- `hideDelay` - Delay in ms before hiding the submenu when mouse leaves. Defaults to `200`.
+- `showDelay` - delay in ms before showing the submenu on hover. Defaults to `300`.
+- `hideDelay` - delay in ms before hiding the submenu when mouse leaves. Defaults to `200`.
 
 **Methods:**
 
-- `addItem(item)` - Add an item to the submenu.
-- `insertItem(index, item)` - Insert an item at a specific index.
-- `removeItem(item)` - Remove an item from the submenu.
+- `addItem(item)` - add an item to the submenu.
+- `insertItem(index, item)` - insert an item at a specific index.
+- `removeItem(item)` - remove an item from the submenu.
 
 ### ContextMenuSeparator
 
@@ -184,7 +184,7 @@ menu.addItem(new ContextMenuItem({ label: "Delete" }));
 
 **Options:**
 
-- `className` - Custom CSS class for the separator element.
+- `className` - custom CSS class for the separator element.
 
 ## Slot Content
 
@@ -228,10 +228,10 @@ new ContextMenuItem({
 
 Object notation supports:
 
-- `as` - Element type to create. Defaults to `'span'`.
+- `as` - element type to create. Defaults to `'span'`.
 - `className` - CSS class name(s) to apply.
-- `content` - Text content for the element.
-- `onClick` - Click event handler.
+- `content` - text content for the element.
+- `onClick` - click event handler.
 
 ```ts
 new ContextMenuItem({
@@ -285,11 +285,11 @@ The library automatically detects whether these options are available and falls 
 
 The menu supports full keyboard navigation:
 
-- **Arrow Down/Up** - Move focus between items
-- **Arrow Right** - Open a submenu when the submenu item is focused
-- **Arrow Left** - Close submenu and return to parent
-- **Enter/Space** - Activate the focused item
-- **Escape** - Close the menu
+- **Arrow down/up** - move focus between items
+- **Arrow right** - open a submenu when the submenu item is focused
+- **Arrow left** - close submenu and return to parent
+- **Enter/space** - activate the focused item
+- **Escape** - close the menu
 
 ## Theming
 
@@ -300,7 +300,7 @@ Custom styling can be applied via the `className` options on each component, or 
 | Variable                               | Description             | Light Default | Dark Default |
 | -------------------------------------- | ----------------------- | ------------- | ------------ |
 | `--context-menu-bg`                    | Menu background color   | `white`       | `#141414`    |
-| `--context-menu-font-family`           | Menu font family        | System stack  | System stack |
+| `--context-menu-font-family`           | Menu font family        | Inherited from map  | Inherited from map |
 | `--context-menu-border-radius`         | Menu border radius      | `5px`         | `5px`        |
 | `--context-menu-min-width`             | Menu minimum width      | `200px`       | `200px`      |
 | `--context-menu-item-text-color`       | Item text color         | `black`       | `white`      |
@@ -309,7 +309,7 @@ Custom styling can be applied via the `className` options on each component, or 
 | `--context-menu-item-active-bg`        | Active item background  | `#f3f3f3`     | `#2a2a2a`    |
 | `--context-menu-item-disabled-opacity` | Disabled item opacity   | `0.5`         | `0.5`        |
 | `--context-menu-button-height`         | Button height           | `30px`        | `30px`       |
-| `--context-menu-button-radius`         | Button border radius    | `3px`         | `3px`        |
+| `--context-menu-button-radius`         | Button border radius    | `2.5px`         | `2.5px`        |
 | `--context-menu-separator-color`       | Separator line color    | `#e8e8e8`     | `#505050`    |
 
 ## License
