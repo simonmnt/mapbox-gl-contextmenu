@@ -1,5 +1,6 @@
 import type { Map, MapMouseEvent } from "mapbox-gl";
 import type ContextMenuItem from "./components/ContextMenuItem";
+import type ContextMenuLabel from "./components/ContextMenuLabel";
 import type ContextMenuSeparator from "./components/ContextMenuSeparator";
 import type ContextMenuSubmenu from "./components/ContextMenuSubmenu";
 import type { ContextMenuTheme } from "./components/ContextMenu/ContextMenu";
@@ -47,7 +48,11 @@ export interface Focusable {
   blur(): void;
 }
 
-export type MenuItem = ContextMenuItem | ContextMenuSeparator | ContextMenuSubmenu;
+export type MenuItem =
+  | ContextMenuItem
+  | ContextMenuLabel
+  | ContextMenuSeparator
+  | ContextMenuSubmenu;
 
 /**
  * Options for creating a slot element via object notation.
@@ -70,3 +75,27 @@ export interface SlotOptions {
  * - `SlotOptions`: Creates an element with the specified options
  */
 export type Content = string | HTMLElement | SlotOptions;
+
+/**
+ * Featureset descriptor for targeting featuresets in imported basemaps.
+ * Requires Mapbox GL JS v3.9.0 or later.
+ */
+export interface FeaturesetDescriptor {
+  /** The featureset ID to target (e.g., "buildings", "poi"). */
+  featuresetId: string;
+  /** The import ID of the basemap (e.g., "basemap"). */
+  importId?: string;
+}
+
+/**
+ * Target descriptor for expanded targeting options in Mapbox GL JS v3.9.0+.
+ * Can reference either a style layer ID or a featureset.
+ */
+export type TargetDescriptor = { layerId: string } | FeaturesetDescriptor;
+
+/**
+ * Target specification for layer-scoped context menus.
+ * - `string` or `string[]`: Layer ID(s) for layer-based targeting
+ * - `TargetDescriptor`: Expanded targeting options (Mapbox GL JS v3.9.0+)
+ */
+export type LayerTarget = string | string[] | TargetDescriptor;

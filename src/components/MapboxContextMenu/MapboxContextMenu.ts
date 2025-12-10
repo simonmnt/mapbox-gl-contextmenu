@@ -1,5 +1,5 @@
 import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
-import { ContextMenuContext } from "../../types";
+import { ContextMenuContext, LayerTarget, TargetDescriptor } from "../../types";
 import { ContextMenu, ContextMenuOptions } from "../ContextMenu";
 
 /**
@@ -25,7 +25,8 @@ export default class MapboxContextMenu extends ContextMenu {
   private static _openMenu: MapboxContextMenu | null = null;
 
   private _map: MapboxMap | null = null;
-  private _layerIds: string | string[] | undefined = undefined;
+  private _target: LayerTarget | undefined = undefined;
+  private _interactionId: string | null = null;
   private _mapHandlers = {
     contextmenu: null as ((e: MapMouseEvent) => void) | null,
     mousedown: null as ((e: MapMouseEvent) => void) | null,
@@ -47,12 +48,15 @@ export default class MapboxContextMenu extends ContextMenu {
    * Adds the context menu to a Mapbox GL JS or Maplibre GL JS map.
    *
    * @param map - The map instance.
-   * @param layerIds - Optional layer ID(s) to restrict the menu to. Can be a string or array of strings.
+   * @param target - Optional target to restrict the menu to. Can be:
+   *   - A layer ID string (e.g., `"building"`)
+   *   - An array of layer IDs (e.g., `["building", "poi"]`)
+   *   - A TargetDescriptor for Mapbox GL JS v3.9.0+ (e.g., `{ featuresetId: "buildings", importId: "basemap" }`)
    */
   // @ts-expect-error - Override with different signature for Mapbox-specific API
-  addTo(map: MapboxMap, layerIds?: string | string[]): this {
+  addTo(map: MapboxMap, target?: LayerTarget): this {
     this._map = map;
-    this._layerIds = layerIds;
+    this._target = target;
 
     ContextMenu.prototype.addTo.call(this, map.getContainer());
 
@@ -75,7 +79,8 @@ export default class MapboxContextMenu extends ContextMenu {
     }
 
     this._map = null;
-    this._layerIds = undefined;
+    this._target = undefined;
+    this._interactionId = null;
     return this;
   }
 
@@ -112,6 +117,16 @@ export default class MapboxContextMenu extends ContextMenu {
     }
   }
 
+  private _isTargetDescriptor(
+    target: LayerTarget | undefined
+  ): target is TargetDescriptor {
+    return (
+      typeof target === "object" &&
+      !Array.isArray(target) &&
+      ("featuresetId" in target || "layerId" in target)
+    );
+  }
+
   private _addMapEventListeners(): void {
     this._mapHandlers.contextmenu = (e: MapMouseEvent) => {
       e.preventDefault();
@@ -133,32 +148,70 @@ export default class MapboxContextMenu extends ContextMenu {
       this.hide();
     };
 
-    if (this._layerIds) {
-      this._map!.on("contextmenu", this._layerIds, this._mapHandlers.contextmenu);
-    } else {
-      this._map!.on("contextmenu", this._mapHandlers.contextmenu);
+    const map = this._map!;
+
+    // Use Interaction API for TargetDescriptor if available (Mapbox GL JS v3.9.0+)
+    if (
+      this._isTargetDescriptor(this._target) &&
+      typeof (map as any).addInteraction === "function"
+    ) {
+      this._interactionId = `contextmenu-${Date.now()}`;
+      (map as any).addInteraction(this._interactionId, {
+        type: "contextmenu",
+        target: this._target,
+        handler: (e: any) => {
+          // Normalize interaction event: convert single `feature` to `features` array
+          if (e.feature && !e.features) {
+            e.features = [e.feature];
+          }
+          this._mapHandlers.contextmenu!(e);
+        }
+      });
+    } else if (this._target && !this._isTargetDescriptor(this._target)) {
+      // Layer-based targeting (string or string[])
+      map.on("contextmenu", this._target, this._mapHandlers.contextmenu);
+    } else if (!this._target) {
+      // No target - listen on entire map
+      map.on("contextmenu", this._mapHandlers.contextmenu);
     }
 
-    this._map!.on("move", this._mapHandlers.move);
-    this._map!.on("mousedown", this._mapHandlers.mousedown);
+    map.on("move", this._mapHandlers.move);
+    map.on("mousedown", this._mapHandlers.mousedown);
   }
 
   private _removeMapEventListeners(): void {
     if (!this._map) return;
 
+    const map = this._map;
+    const usedInteractionApi = !!this._interactionId;
+
+    // Remove interaction if using Interaction API
+    if (
+      this._interactionId &&
+      typeof (map as any).removeInteraction === "function"
+    ) {
+      (map as any).removeInteraction(this._interactionId);
+      this._interactionId = null;
+    }
+
     for (const [event, handler] of Object.entries(this._mapHandlers)) {
       if (!handler) continue;
 
       if (event === "contextmenu") {
-        this._layerIds
-          ? this._map.off(
+        // Only remove via map.off if not using Interaction API
+        if (!usedInteractionApi) {
+          if (this._target && !this._isTargetDescriptor(this._target)) {
+            map.off(
               "contextmenu",
-              this._layerIds,
+              this._target,
               handler as (e: MapMouseEvent) => void
-            )
-          : this._map.off("contextmenu", handler as (e: MapMouseEvent) => void);
+            );
+          } else if (!this._target) {
+            map.off("contextmenu", handler as (e: MapMouseEvent) => void);
+          }
+        }
       } else {
-        this._map.off(event, handler as () => void);
+        map.off(event, handler as () => void);
       }
       this._mapHandlers[event as keyof typeof this._mapHandlers] = null;
     }

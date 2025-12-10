@@ -4,6 +4,9 @@ export type { MapboxContextMenuOptions } from "./components/MapboxContextMenu/Ma
 export { default as ContextMenuItem } from "./components/ContextMenuItem/ContextMenuItem";
 export type { ContextMenuItemOptions } from "./components/ContextMenuItem/ContextMenuItem";
 
+export { default as ContextMenuLabel } from "./components/ContextMenuLabel";
+export type { ContextMenuLabelOptions } from "./components/ContextMenuLabel";
+
 export { default as ContextMenuSeparator } from "./components/ContextMenuSeparator";
 export type { ContextMenuSeparatorOptions } from "./components/ContextMenuSeparator";
 
@@ -12,9 +15,6 @@ export type { ContextMenuSubmenuOptions } from "./components/ContextMenuSubmenu"
 
 export type {
   Content,
-  ContextMenuContext,
   ContextMenuItemEventData,
-  Focusable,
-  MenuItem,
   SlotOptions
 } from "./types";

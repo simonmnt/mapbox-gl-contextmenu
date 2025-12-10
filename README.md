@@ -108,7 +108,7 @@ const menu = new MapboxContextMenu(options);
 - `addItem(item)` - Add a menu item.
 - `insertItem(index, item)` - Insert a menu item at a specific index.
 - `removeItem(item)` - Remove a menu item.
-- `addTo(map, layerIds?)` - Add the menu to a map. Optionally restrict to specific layer(s).
+- `addTo(map, target?)` - Add the menu to a map. Optionally restrict to specific layer(s). See [Layer Targeting](#layer-targeting).
 - `remove()` - Remove the menu from the map.
 
 ### ContextMenuItem
@@ -240,6 +240,46 @@ new ContextMenuItem({
   end: { content: "Beta", className: "badge" }
 });
 ```
+
+## Layer Targeting
+
+Context menus can be scoped to specific map layers, so they only appear when the `contextmenu` event is triggered on features in those layers.
+
+Pass a layer ID or array of layer IDs to `addTo()`:
+
+```ts
+// Single layer
+menu.addTo(map, "building");
+
+// Multiple layers
+menu.addTo(map, ["building", "building-outline"]);
+```
+
+When the menu is triggered, the `features` property in the click event will contain one or more features at that location:
+
+```ts
+item.on("click", ({ features }) => {
+  if (features && features.length > 0) {
+    console.log(features[0].properties);
+  }
+});
+```
+
+### Featureset Targeting (Mapbox GL JS v3.9.0+)
+
+Mapbox GL JS v3.9.0 introduced expanded targeting options, through the [Interactions API](https://docs.mapbox.com/mapbox-gl-js/guides/user-interactions/interactions/), that allow you to target [featuresets](https://docs.mapbox.com/style-spec/reference/featuresets/) in imported basemaps like Mapbox Standard:
+
+```ts
+menu.addTo(map, { featuresetId: "buildings", importId: "basemap" });
+```
+
+You can also target layers using this object notation:
+
+```ts
+menu.addTo(map, { layerId: "my-custom-layer" });
+```
+
+The library automatically detects whether these options are available and falls back to the traditional layer-based approach for older versions or MapLibre GL JS.
 
 ## Keyboard Navigation
 
