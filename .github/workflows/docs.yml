@@ -1,4 +1,4 @@
-name: Deploy Docs
+name: Deploy Docs & Demo
 
 on:
   push:
@@ -24,10 +24,19 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run docs
+      - name: Build API docs
+        run: pnpm run docs
+      - name: Build demo
+        run: pnpm vite build --config vite.config.demo.ts
+        env:
+          VITE_MAPBOX_ACCESS_TOKEN: ${{ secrets.VITE_MAPBOX_ACCESS_TOKEN }}
+      - name: Combine outputs
+        run: |
+          mkdir -p dist-pages
+          cp -r docs/* dist-pages/
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: dist-pages
       - id: deployment
         uses: actions/deploy-pages@v4
