@@ -4,6 +4,8 @@ A context menu plugin for Mapbox GL JS and MapLibre GL JS.
 
 <p align="center">
   <img src="assets/screenshot.png" width="800" alt="Context menu example showing menu items and submenu">
+  <br>
+  <a href="https://aratcliffe.github.io/mapbox-gl-contextmenu/demo/">View Demo</a>
 </p>
 
 ## Features
