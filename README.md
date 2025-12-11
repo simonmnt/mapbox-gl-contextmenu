@@ -277,7 +277,7 @@ Fired by `ContextMenuItem`.
 | `features` | `Feature[]` | Features at the click location (when menu is layer-scoped). |
 | `originalEvent` | `MouseEvent` | The original DOM click event. |
 
-## Slot Content
+## Slots
 
 The `start` and `end` slots accept three types of content:
 
