@@ -47,7 +47,7 @@ Or using jsDelivr:
 
 ## Usage
 
-### ES Modules
+### Using modules
 
 ```ts
 import mapboxgl from "mapbox-gl";
@@ -73,7 +73,7 @@ menu.addItem(centerItem);
 menu.addTo(map);
 ```
 
-### Script Tag
+### Using a CDN
 
 When using the UMD build via a script tag, the library extends the `mapboxgl` global object:
 
@@ -123,6 +123,32 @@ const menu = new MapboxContextMenu(options);
 - `addTo(map, target?)` - add the menu to a map. Optionally restrict to specific layer(s). See [Layer Targeting](#layer-targeting).
 - `remove()` - remove the menu from the map.
 
+**Events:**
+
+#### show
+
+Fired when the context menu is displayed.
+
+Type: [`ContextMenuEvent`](#contextmenuevent)
+
+```ts
+menu.on("show", (e) => {
+  console.log(`Menu opened at ${e.lngLat.lng}, ${e.lngLat.lat}`);
+});
+```
+
+#### hide
+
+Fired when the context menu is closed.
+
+Type: [`ContextMenuEvent`](#contextmenuevent)
+
+```ts
+menu.on("hide", (e) => {
+  console.log("Menu closed");
+});
+```
+
 ### ContextMenuItem
 
 A clickable menu item with optional content slots.
@@ -156,7 +182,17 @@ item.on("click", ({ lngLat, map, point, features }) => {
 
 **Events:**
 
-- `click` - fired when the item is clicked. Event data includes `lngLat`, `point`, `map`, `features`, and `originalEvent`.
+#### click
+
+Fired when the menu item is clicked.
+
+Type: [`ContextMenuItemEvent`](#contextmenuitemevent)
+
+```ts
+item.on("click", (e) => {
+  console.log(`Clicked at ${e.lngLat.lng}, ${e.lngLat.lat}`);
+});
+```
 
 ### ContextMenuSubmenu
 
@@ -212,6 +248,34 @@ menu.addItem(new ContextMenuItem({ label: "Delete" }));
 **Options:**
 
 - `className` - custom CSS class for the separator element.
+
+### ContextMenuEvent
+
+Fired by `MapboxContextMenu`.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | `"show"` \| `"hide"` | The event type. |
+| `target` | `MapboxContextMenu` | The context menu that fired the event. |
+| `map` | `Map` | The Mapbox GL or MapLibre GL map instance. |
+| `lngLat` | `{ lng: number, lat: number }` | Geographic coordinates of the original right-click. |
+| `point` | `{ x: number, y: number }` | Pixel coordinates relative to the map container. |
+| `features` | `Feature[]` | Features at the click location (when menu is layer-scoped). |
+| `originalEvent` | `MouseEvent` | The original DOM event. |
+
+### ContextMenuItemEvent
+
+Fired by `ContextMenuItem`.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | `"click"` | The event type. |
+| `target` | `ContextMenuItem` | The menu item that fired the event. |
+| `map` | `Map` | The Mapbox GL or MapLibre GL map instance. |
+| `lngLat` | `{ lng: number, lat: number }` | Geographic coordinates of the original right-click. |
+| `point` | `{ x: number, y: number }` | Pixel coordinates relative to the map container. |
+| `features` | `Feature[]` | Features at the click location (when menu is layer-scoped). |
+| `originalEvent` | `MouseEvent` | The original DOM click event. |
 
 ## Slot Content
 
@@ -307,6 +371,7 @@ menu.addTo(map, { layerId: "my-custom-layer" });
 ```
 
 The library automatically detects whether these options are available and falls back to the traditional layer-based approach for older versions or MapLibre GL JS.
+
 
 ## Keyboard Navigation
 

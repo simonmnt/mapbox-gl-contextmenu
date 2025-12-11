@@ -1,4 +1,5 @@
 import type { Map, MapMouseEvent } from "mapbox-gl";
+import type ContextMenu from "./components/ContextMenu/ContextMenu";
 import type ContextMenuItem from "./components/ContextMenuItem";
 import type ContextMenuLabel from "./components/ContextMenuLabel";
 import type ContextMenuSeparator from "./components/ContextMenuSeparator";
@@ -23,9 +24,33 @@ export interface ContextMenuContext {
 }
 
 /**
- * Event data passed to menu item click handlers.
+ * Event object passed to MapboxContextMenu event handlers.
  */
-export interface ContextMenuItemEventData {
+export interface ContextMenuEvent {
+  /** The event type. */
+  type: "show" | "hide";
+  /** The context menu that fired the event. */
+  target: ContextMenu;
+  /** The original DOM contextmenu event. */
+  originalEvent: MouseEvent;
+  /** The pixel coordinates of the original right-click, relative to the map container. */
+  point: { x: number; y: number };
+  /** The geographic coordinates of the original right-click. */
+  lngLat: { lng: number; lat: number };
+  /** Features at the click location, if the menu was bound to specific layers. */
+  features?: Array<GeoJSON.Feature>;
+  /** The Mapbox GL or Maplibre GL map instance. */
+  map: Map;
+}
+
+/**
+ * Event object passed to ContextMenuItem event handlers.
+ */
+export interface ContextMenuItemEvent {
+  /** The event type. */
+  type: "click";
+  /** The menu item that fired the event. */
+  target: ContextMenuItem;
   /** The original DOM click event. */
   originalEvent: MouseEvent;
   /** The pixel coordinates of the original right-click, relative to the map container. */

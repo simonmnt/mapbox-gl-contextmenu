@@ -10,9 +10,10 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const hint = document.getElementById("hint");
 
-function dismissHint() {
+function dismissHint({ lngLat }) {
   if (hint && !hint.classList.contains("hidden")) {
     hint.classList.add("hidden");
+    console.log(`Menu opened at ${lngLat.lng.toFixed(4)}, ${lngLat.lat.toFixed(4)}`);
   }
 }
 

@@ -1,14 +1,14 @@
 import type {
   Content,
   ContextMenuContext,
-  ContextMenuItemEventData
+  ContextMenuItemEvent
 } from "../../types";
 import { Evented } from "../../util/evented";
 import { createElement, createSlotElement } from "../../util/dom";
 import styles from "./ContextMenuItem.module.scss";
 
 interface ContextMenuItemEvents extends Record<string, unknown> {
-  click: ContextMenuItemEventData;
+  click: ContextMenuItemEvent;
 }
 
 /**
@@ -302,6 +302,8 @@ export default class ContextMenuItem extends Evented<ContextMenuItemEvents> {
       if (!this._disabled && this._currentCtx) {
         const { event, map } = this._currentCtx;
         this.fire("click", {
+          type: "click",
+          target: this,
           originalEvent: ev,
           point: event.point,
           lngLat: event.lngLat,

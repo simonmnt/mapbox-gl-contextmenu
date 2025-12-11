@@ -15,6 +15,7 @@ export type { ContextMenuSubmenuOptions } from "./components/ContextMenuSubmenu"
 
 export type {
   Content,
-  ContextMenuItemEventData,
+  ContextMenuEvent,
+  ContextMenuItemEvent,
   SlotOptions
 } from "./types";

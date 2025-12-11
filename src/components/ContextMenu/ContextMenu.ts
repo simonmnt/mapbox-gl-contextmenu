@@ -1,4 +1,4 @@
-import { ContextMenuContext, MenuItem } from "../../types";
+import type { ContextMenuContext, ContextMenuEvent, MenuItem } from "../../types";
 import { Evented } from "../../util/evented";
 import { isFocusable } from "../../util/focusable";
 import ContextMenuItem from "../ContextMenuItem/ContextMenuItem";
@@ -19,9 +19,9 @@ export interface ContextMenuOptions {
 
 export type ContextMenuEvents = {
   /** Fired when the context menu is shown. */
-  show: void;
+  show: ContextMenuEvent;
   /** Fired when the context menu is hidden. */
-  hide: void;
+  hide: ContextMenuEvent;
 };
 
 export default class ContextMenu extends Evented<ContextMenuEvents> {
@@ -35,6 +35,7 @@ export default class ContextMenu extends Evented<ContextMenuEvents> {
   protected _handlers: Record<string, EventListener | null> = {};
 
   private _focusedIndex: number = -1;
+  private _currentContext: ContextMenuContext | null = null;
 
   private _onEscapeLeft: (() => void) | null = null;
 
@@ -228,7 +229,8 @@ export default class ContextMenu extends Evented<ContextMenuEvents> {
       this._focusItemUnderMouse();
     }
 
-    this.fire("show", undefined as void);
+    this._currentContext = context;
+    this.fire("show", this._createEvent("show", context));
   }
 
   /**
@@ -260,7 +262,26 @@ export default class ContextMenu extends Evented<ContextMenuEvents> {
       }
     });
 
-    this.fire("hide", undefined as void);
+    if (this._currentContext) {
+      this.fire("hide", this._createEvent("hide", this._currentContext));
+      this._currentContext = null;
+    }
+  }
+
+  private _createEvent(
+    type: "show" | "hide",
+    context: ContextMenuContext
+  ): ContextMenuEvent {
+    const { event, map } = context;
+    return {
+      type,
+      target: this,
+      originalEvent: event.originalEvent,
+      point: event.point,
+      lngLat: event.lngLat,
+      features: event.features,
+      map
+    };
   }
 
   private _focusItem(index: number): void {
