@@ -13,7 +13,8 @@
       "require": "./dist/index.cjs",
       "browser": "./dist/index.umd.js",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "scripts": {
     "dev": "vite",
